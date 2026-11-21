@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         window.__TRIPSPLIT_AUTH_IN_PROGRESS__ = false;
         console.error('Login failed:', err);
-        const friendlyMessage = getFriendlyAuthErrorMessage(err.code || '') || err.message;
+        const friendlyMessage = getFriendlyAuthErrorMessage(err.code || '') || err.message || 'Authentication failed. Please verify your credentials or register a new account.';
         showAlert(alertContainer, friendlyMessage, 'danger');
         setButtonLoading(submitBtn, false);
       }
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }, 3500);
         } catch (err) {
           console.error('Password reset error:', err);
-          const friendlyMessage = getFriendlyAuthErrorMessage(err.code || '') || err.message;
+          const friendlyMessage = getFriendlyAuthErrorMessage(err.code || '') || err.message || 'Authentication failed. Please verify your credentials or register a new account.';
           showAlert(resetAlert, friendlyMessage, 'danger');
           setButtonLoading(resetSubmitBtn, false);
         }

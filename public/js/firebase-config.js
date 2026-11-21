@@ -29,6 +29,19 @@ export function initFirebase() {
     try {
       let config = window.__TRIPSPLIT_FIREBASE_CONFIG__;
 
+      // Check persistent client storage for cached configuration
+      if (!config || !config.apiKey) {
+        try {
+          const cached = sessionStorage.getItem('__tripsplit_fb_cfg__') || localStorage.getItem('__tripsplit_fb_cfg__');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.apiKey && parsed.projectId) {
+              config = parsed;
+            }
+          }
+        } catch (_) {}
+      }
+
       if (!config || !config.apiKey) {
         // Fetch public web configuration from server with 5s timeout
         const controller = new AbortController();
@@ -40,6 +53,10 @@ export function initFirebase() {
             const payload = await response.json();
             if (payload?.success && payload?.data?.isConfigured) {
               config = payload.data.config;
+              try {
+                sessionStorage.setItem('__tripsplit_fb_cfg__', JSON.stringify(config));
+                localStorage.setItem('__tripsplit_fb_cfg__', JSON.stringify(config));
+              } catch (_) {}
             }
           }
         } catch (fetchErr) {

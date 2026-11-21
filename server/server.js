@@ -26,6 +26,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 
+// Enable trust proxy for reverse proxy environments (Render, Cloudflare, etc.)
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(
   helmet({
@@ -81,38 +84,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting for auth and API endpoints (relaxed in development)
-const isDev = process.env.NODE_ENV !== 'production';
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isDev ? 10000 : 150, // Relaxed in dev to prevent 429
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    error: {
-      code: 'TOO_MANY_REQUESTS',
-      message: 'Too many requests from this IP, please try again after 15 minutes.'
-    }
-  }
-});
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: isDev ? 5000 : 30, // Relaxed in dev
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    error: {
-      code: 'TOO_MANY_REQUESTS',
-      message: 'Too many authentication attempts, please try again later.'
-    }
-  }
-});
-
-app.use('/api/', apiLimiter);
-app.use('/api/auth/', authLimiter);
+// Public health and Firebase configuration endpoints (exempt from rate limits)
+app.use('/api/health', healthRoutes);
 
 // Public Firebase client configuration endpoint
 // Never expose server admin credentials or private keys
@@ -138,8 +111,40 @@ app.get('/api/config/firebase', (req, res) => {
   });
 });
 
+// Rate limiting for auth and API endpoints (relaxed in development)
+const isDev = process.env.NODE_ENV !== 'production';
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: isDev ? 10000 : 600, // Generous limit for real single-page app usage
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      code: 'TOO_MANY_REQUESTS',
+      message: 'Too many requests from this IP, please try again after 15 minutes.'
+    }
+  }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isDev ? 5000 : 150, // Relaxed to prevent blocking legitimate profile syncs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      code: 'TOO_MANY_REQUESTS',
+      message: 'Too many authentication attempts, please try again later.'
+    }
+  }
+});
+
+app.use('/api/', apiLimiter);
+app.use('/api/auth/', authLimiter);
+
 // Mount API routes
-app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/trips', tripRoutes);

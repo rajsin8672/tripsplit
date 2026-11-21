@@ -44,7 +44,7 @@ export function getFriendlyAuthErrorMessage(errorCode) {
     case 'auth/user-disabled':
       return 'This account has been disabled. Please contact support.';
     default:
-      return 'Authentication failed. Please verify your credentials or register a new account.';
+      return '';
   }
 }
 

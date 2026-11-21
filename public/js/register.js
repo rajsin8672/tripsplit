@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         window.__TRIPSPLIT_AUTH_IN_PROGRESS__ = false;
         console.error('Registration failed:', err);
-        const friendlyMessage = getFriendlyAuthErrorMessage(err.code || '') || err.message;
+        const friendlyMessage = getFriendlyAuthErrorMessage(err.code || '') || err.message || 'Registration failed. Please check your details and try again.';
         showAlert(alertContainer, friendlyMessage, 'danger');
         setButtonLoading(submitBtn, false);
       }

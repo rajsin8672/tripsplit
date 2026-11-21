@@ -356,7 +356,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label for="expense-category" class="form-label">Category</label>
             <select id="expense-category" class="form-input">
@@ -374,15 +374,11 @@
             <label for="expense-paid-by" class="form-label required">Paid By</label>
             <select id="expense-paid-by" class="form-input" required></select>
           </div>
-          <div class="form-group">
-            <label for="expense-date" class="form-label">Date</label>
-            <input type="date" id="expense-date" class="form-input">
-          </div>
         </div>
 
         <div class="form-group">
           <label class="form-label required">Split Method</label>
-          <div style="display: flex; gap: 1rem; margin-bottom: 0.75rem;">
+          <div style="display: flex; gap: 1.5rem; margin-bottom: 0.75rem;">
             <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
               <input type="radio" name="splitType" value="EQUAL" checked id="split-type-equal">
               <span><strong>Equal Split</strong> (Split equally)</span>
@@ -390,10 +386,6 @@
             <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
               <input type="radio" name="splitType" value="EXACT" id="split-type-exact">
               <span><strong>Exact Amounts</strong> (Specify ₹ each)</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
-              <input type="radio" name="splitType" value="PERCENTAGE" id="split-type-pct">
-              <span><strong>Percentages</strong> (Specify % each)</span>
             </label>
           </div>
         </div>

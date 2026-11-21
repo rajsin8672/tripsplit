@@ -232,6 +232,25 @@ function getCategoryIcon(cat) {
   }
 }
 
+function formatExpenseDateTime(dateStr, createdAtStr) {
+  const target = dateStr || createdAtStr;
+  if (!target) return 'Just now';
+  try {
+    const d = new Date(target);
+    if (isNaN(d.getTime())) return target;
+    return d.toLocaleString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch {
+    return target;
+  }
+}
+
 function renderExpenses() {
   const list = document.getElementById('expenses-list');
   const empty = document.getElementById('expenses-empty');
@@ -271,7 +290,7 @@ function renderExpenses() {
             <div class="expense-item-title">${escapeHtml(exp.title)}</div>
             <div class="expense-item-subtitle">
               Paid by <strong>${escapeHtml(exp.paidByName)}</strong> &bull;
-              <span>${escapeHtml(exp.date)}</span> &bull;
+              <span>${formatExpenseDateTime(exp.date, exp.createdAt)}</span> &bull;
               <span class="badge badge-navy" style="font-size: 0.7rem;">${escapeHtml(exp.splitType)} SPLIT</span>
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem;">
@@ -709,11 +728,6 @@ function openExpenseModal(expenseToEdit = null) {
   // Populate Participants selection checkboxes and split input fields
   renderParticipantSplitControls(activeMembers, expenseToEdit);
 
-  const dateInput = document.getElementById('expense-date');
-  if (dateInput) {
-    dateInput.value = expenseToEdit?.date || new Date().toISOString().split('T')[0];
-  }
-
   if (expenseToEdit) {
     titleEl.textContent = 'Edit Expense';
     editIdEl.value = expenseToEdit.expenseId;
@@ -953,9 +967,13 @@ function setupGlobalEvents() {
       const amountVal = parseFloat(document.getElementById('expense-amount')?.value || 0);
       const category = document.getElementById('expense-category')?.value;
       const paidBy = document.getElementById('expense-paid-by')?.value;
-      const date = document.getElementById('expense-date')?.value;
       const description = document.getElementById('expense-description')?.value.trim();
       const splitType = document.querySelector('input[name="splitType"]:checked')?.value || 'EQUAL';
+
+      // Automatically capture current date and time on save
+      const nowIso = new Date().toISOString();
+      const existingExp = editId ? tripExpenses.find(x => x.expenseId === editId) : null;
+      const date = existingExp ? (existingExp.date || nowIso) : nowIso;
 
       if (!title || title.length < 2) {
         showAlert(expAlertEl, 'Title must be at least 2 characters.', 'danger');

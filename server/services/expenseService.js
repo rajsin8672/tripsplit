@@ -194,7 +194,7 @@ export async function createExpense(tripId, creatorId, expenseInput) {
 
   const expenseId = generateExpenseId();
   const nowIso = new Date().toISOString();
-  const expenseDate = date || nowIso.split('T')[0];
+  const expenseDate = date || nowIso;
 
   const expenseDoc = {
     expenseId,

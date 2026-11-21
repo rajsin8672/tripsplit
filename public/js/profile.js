@@ -40,14 +40,20 @@ async function initProfilePage(authUser) {
       };
     }
 
+    // Resolve best display name
+    let resolvedName = profile?.displayName;
+    if ((!resolvedName || resolvedName === 'TripSplit User') && authUser.displayName && authUser.displayName !== 'TripSplit User') {
+      resolvedName = authUser.displayName;
+    }
+
     // Populate profile inputs
-    if (nameInput) nameInput.value = profile?.displayName || authUser.displayName || '';
+    if (nameInput) nameInput.value = resolvedName || '';
     if (emailInput) emailInput.value = profile?.email || authUser.email || '';
     if (userCodeInput) userCodeInput.value = profile?.userCode || 'TS-MEMBER';
     if (upiInput) upiInput.value = profile?.upiId || '';
 
     if (avatarLetter) {
-      avatarLetter.textContent = (profile?.displayName || authUser.displayName || 'U').charAt(0).toUpperCase();
+      avatarLetter.textContent = (resolvedName || 'U').charAt(0).toUpperCase();
     }
 
     if (loadingContainer) loadingContainer.style.display = 'none';

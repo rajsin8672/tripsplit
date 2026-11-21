@@ -71,7 +71,7 @@ export async function redirectIfAuth() {
   }
 
   onAuthStateChanged(auth, (user) => {
-    if (user) {
+    if (user && !window.__TRIPSPLIT_AUTH_IN_PROGRESS__) {
       const params = new URLSearchParams(window.location.search);
       const redirectUrl = params.get('redirect') || '/dashboard.html';
       const safeRedirect = redirectUrl.startsWith('/') && !redirectUrl.startsWith('//') ? redirectUrl : '/dashboard.html';

@@ -58,6 +58,11 @@ export async function syncUserProfile(authUser, additionalData = {}) {
       displayName = additionalData.displayName.trim();
     } else if (authUser.name && validateDisplayName(authUser.name)) {
       displayName = authUser.name.trim();
+    } else if (authUser.email && authUser.email.includes('@')) {
+      const emailPrefix = authUser.email.split('@')[0];
+      if (validateDisplayName(emailPrefix)) {
+        displayName = emailPrefix;
+      }
     }
 
     const userCode = await generateUniqueUserCode();

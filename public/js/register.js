@@ -97,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       setButtonLoading(submitBtn, true, 'Creating Account...');
+      window.__TRIPSPLIT_AUTH_IN_PROGRESS__ = true;
 
       try {
         await registerUser(displayName, email, password);
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
           window.location.href = '/dashboard.html';
         }, 800);
       } catch (err) {
+        window.__TRIPSPLIT_AUTH_IN_PROGRESS__ = false;
         console.error('Registration failed:', err);
         const friendlyMessage = getFriendlyAuthErrorMessage(err.code || '') || err.message;
         showAlert(alertContainer, friendlyMessage, 'danger');

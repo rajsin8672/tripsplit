@@ -58,6 +58,12 @@ async function loadDashboardData() {
       };
     }
 
+    // Auto-heal: If profile displayName is generic "TripSplit User" but auth has a specific name
+    if ((!profile?.displayName || profile.displayName === 'TripSplit User') && currentUser?.displayName && currentUser.displayName !== 'TripSplit User') {
+      profile.displayName = currentUser.displayName;
+      api.patch('/api/users/me', { displayName: currentUser.displayName }).catch(() => {});
+    }
+
     renderProfileHeader(profile || {});
 
     // 2. Fetch user's trips and invitations in parallel

@@ -12,7 +12,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
 import { initFirebase } from './firebase-config.js';
-import { api } from './api.js';
+import { api, setApiAuthUser } from './api.js';
 
 /**
  * Translate Firebase error codes into friendly user messages
@@ -50,10 +50,14 @@ export async function registerUser(displayName, email, password) {
   // 1. Create Firebase Auth user
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
+  setApiAuthUser(user);
 
   // 2. Set Firebase Auth display name
   try {
     await updateProfile(user, { displayName });
+    if (typeof user.getIdToken === 'function') {
+      await user.getIdToken(true);
+    }
   } catch (err) {
     console.warn('[Auth] Failed to update Auth profile displayName:', err);
   }

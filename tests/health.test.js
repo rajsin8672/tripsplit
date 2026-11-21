@@ -68,4 +68,20 @@ describe('Server & Health API Endpoints', () => {
     assert.ok([401, 503].includes(res.status));
     assert.strictEqual(res.body.success, false);
   });
+
+  it('Static frontend should serve /forgot-password.html with reset form', async () => {
+    const res = await request(app).get('/forgot-password.html');
+    assert.strictEqual(res.status, 200);
+    assert.ok(res.text.includes('id="forgot-password-form"'));
+    assert.ok(res.text.includes('id="forgot-email"'));
+    assert.ok(res.text.includes('id="forgot-submit-btn"'));
+  });
+
+  it('Static frontend should serve /login.html with forgot password links and modal', async () => {
+    const res = await request(app).get('/login.html');
+    assert.strictEqual(res.status, 200);
+    assert.ok(res.text.includes('id="forgot-password-link"'));
+    assert.ok(res.text.includes('id="forgot-password-footer-link"'));
+    assert.ok(res.text.includes('id="reset-modal"'));
+  });
 });

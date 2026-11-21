@@ -21,8 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Password reset modal elements
   const forgotPasswordLink = document.getElementById('forgot-password-link');
+  const forgotPasswordFooterLink = document.getElementById('forgot-password-footer-link');
   const resetModal = document.getElementById('reset-modal');
   const closeResetModalBtn = document.getElementById('close-reset-modal');
+  const cancelResetModalBtn = document.getElementById('cancel-reset-modal');
   const resetForm = document.getElementById('reset-form');
   const resetEmailInput = document.getElementById('reset-email');
   const resetSubmitBtn = document.getElementById('reset-submit-btn');
@@ -90,20 +92,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Handle Forgot Password Modal
-  if (forgotPasswordLink && resetModal) {
-    forgotPasswordLink.addEventListener('click', (e) => {
-      e.preventDefault();
+  if (resetModal) {
+    const openResetModal = (e) => {
+      if (e) e.preventDefault();
       clearAlert(resetAlert);
-      if (emailInput.value.trim()) {
+      if (emailInput && emailInput.value.trim()) {
         resetEmailInput.value = emailInput.value.trim();
       }
       resetModal.classList.add('is-active');
       resetEmailInput.focus();
-    });
+    };
 
-    closeResetModalBtn.addEventListener('click', () => {
-      resetModal.classList.remove('is-active');
-    });
+    if (forgotPasswordLink) {
+      forgotPasswordLink.addEventListener('click', openResetModal);
+    }
+    if (forgotPasswordFooterLink) {
+      forgotPasswordFooterLink.addEventListener('click', openResetModal);
+    }
+
+    if (closeResetModalBtn) {
+      closeResetModalBtn.addEventListener('click', () => {
+        resetModal.classList.remove('is-active');
+      });
+    }
+
+    if (cancelResetModalBtn) {
+      cancelResetModalBtn.addEventListener('click', () => {
+        resetModal.classList.remove('is-active');
+      });
+    }
 
     resetModal.addEventListener('click', (e) => {
       if (e.target === resetModal) {

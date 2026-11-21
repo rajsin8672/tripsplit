@@ -130,3 +130,46 @@
   cursor: not-allowed;
   border-style: dashed !important;
 }
+
+/* ==========================================================================
+   Forgot Password & Auth Enhancements
+   ========================================================================== */
+.auth-link-forgot {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--transition-fast);
+}
+
+.auth-link-forgot:hover {
+  color: var(--color-navy);
+}
+
+.auth-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-very-light-cyan);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+}
+
+.auth-back-link:hover {
+  color: var(--color-navy);
+}
+

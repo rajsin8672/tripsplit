@@ -23,9 +23,12 @@ export function getFriendlyAuthErrorMessage(errorCode) {
       return 'An account with this email address already exists. Please sign in instead.';
     case 'auth/invalid-email':
       return 'Please enter a valid email address.';
+    case 'auth/missing-email':
+      return 'Please enter your email address.';
     case 'auth/weak-password':
       return 'Password should be at least 8 characters long.';
     case 'auth/user-not-found':
+      return 'No account was found with this email address. Please check your spelling or register.';
     case 'auth/wrong-password':
     case 'auth/invalid-credential':
       return 'Invalid email or password. Please verify your credentials.';

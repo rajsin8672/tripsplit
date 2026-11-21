@@ -58,10 +58,15 @@ html, body {
   }
 
   /* Mobile Navigation Bar & Animated Hamburger */
+  .site-header nav {
+    display: contents;
+  }
+
   .mobile-menu-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    margin-left: auto;
     width: 42px;
     height: 42px;
     background-color: var(--color-very-light-cyan);

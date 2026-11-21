@@ -79,6 +79,7 @@
 
 .mobile-menu-btn {
   display: none;
+  margin-left: auto;
   background: none;
   border: none;
   color: var(--color-navy);

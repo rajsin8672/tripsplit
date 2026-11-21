@@ -1,5 +1,6 @@
 import { db } from '../config/firebaseAdmin.js';
 import { generateUserCode, validateDisplayName, validateUpiId } from '../utils/validation.js';
+import { isUserAdmin } from '../middleware/adminAuth.js';
 
 const USERS_COLLECTION = 'users';
 
@@ -34,6 +35,7 @@ function formatSafeProfile(data) {
     displayName: data.displayName || '',
     userCode: data.userCode,
     upiId: data.upiId || '',
+    isAdmin: isUserAdmin(data.email),
     createdAt: data.createdAt,
     updatedAt: data.updatedAt
   };

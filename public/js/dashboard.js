@@ -107,8 +107,7 @@ function renderProfileHeader(profile) {
   if (codeEl) codeEl.textContent = profile.userCode || 'TS-MEMBER';
 
   // If user is platform administrator, display Admin Console shortcut
-  const userEmail = (currentUser?.email || profile?.email || '').toLowerCase();
-  if (userEmail === 'sonusin8672@gmail.com' && !document.getElementById('dash-admin-btn')) {
+  if (profile?.isAdmin && !document.getElementById('dash-admin-btn')) {
     const actionContainer = document.querySelector('.dashboard-user-bar > div:last-child');
     if (actionContainer) {
       const adminBtn = document.createElement('a');

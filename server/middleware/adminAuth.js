@@ -6,7 +6,7 @@
 import { getUserProfile } from '../services/userService.js';
 
 export function getAdminEmails() {
-  const envAdmins = process.env.ADMIN_EMAILS || 'sonusin8672@gmail.com';
+  const envAdmins = process.env.ADMIN_EMAILS || '';
   return envAdmins
     .toLowerCase()
     .split(',')

@@ -59,7 +59,14 @@ export function setupNavigation() {
   onAuthChange(async (user) => {
     setApiAuthUser(user);
     const currentPath = window.location.pathname;
-    const isAdmin = Boolean(user?.email && user.email.toLowerCase() === 'sonusin8672@gmail.com');
+
+    let isAdmin = false;
+    if (user) {
+      try {
+        const checkRes = await api.get('/api/admin/check');
+        isAdmin = Boolean(checkRes?.data?.isAdmin);
+      } catch {}
+    }
 
     // Add Admin link to nav-links list if user is admin
     if (navLinksUl && isAdmin && !document.getElementById('nav-admin-item')) {

@@ -33,7 +33,7 @@ async function verifyAndLoadAdmin(authUser) {
 
     // Authorized
     const adminEmailDisplay = document.getElementById('admin-email-display');
-    if (adminEmailDisplay) adminEmailDisplay.textContent = authUser.email || 'sonusin8672@gmail.com';
+    if (adminEmailDisplay) adminEmailDisplay.textContent = authUser.displayName || authUser.email || 'Platform Administrator';
 
     if (loadingEl) loadingEl.style.display = 'none';
     if (contentEl) contentEl.style.display = 'block';

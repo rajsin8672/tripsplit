@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /profile.html
+Disallow: /trip.html
+Disallow: /payments.html
+Disallow: /api/
+
+Sitemap: https://tripsplit.onrender.com/sitemap.xml

@@ -1,0 +1,518 @@
+================================================================================
+TRIPSPLIT — PERSISTENT PROJECT CONTEXT
+================================================================================
+Project: TripSplit — Share Expenses. Settle Simply.
+Version: 2.0.0 (Phase 1 + Phase 2 + Phase 3 Complete)
+Date: 2026-11-20
+Status: Full Production-Ready Application
+
+--------------------------------------------------------------------------------
+1. PROJECT OBJECTIVE & CANONICAL ARCHITECTURE
+--------------------------------------------------------------------------------
+TripSplit is a production-ready group travel expense-sharing web application with
+accurate integer-paise mathematical splitting, Min-Cash-Flow debt minimization,
+and peer-to-peer manual UPI settlements.
+
+Strict Technology Constraints Maintained:
+- Single canonical Express.js server on Node.js (v18+ LTS compatible).
+- Express serves both static frontend assets (HTML, CSS, JS) and JSON REST APIs.
+- Frontend uses modern Vanilla JavaScript (ES modules) and Vanilla CSS with custom properties.
+- Zero frontend framework bloat (no React, Next.js, Vite, Angular, Vue, etc.).
+- Authentication: Firebase Authentication (Email/Password) with browserLocalPersistence.
+- Database: Firebase Cloud Firestore.
+- Server Firebase SDK: Firebase Admin SDK verifying Bearer ID tokens on protected endpoints.
+- Deployment: Render (One Web Service serving frontend and backend together).
+- Payments: Manual UPI payments only (UPI deep links, client-generated QR code, UTR submission,
+  receiver confirmation or rejection via Firestore transactions). No payment gateway or bank integration.
+
+--------------------------------------------------------------------------------
+2. FOLDER STRUCTURE
+--------------------------------------------------------------------------------
+TripSplit/
+├── public/
+│   ├── index.html            (Landing page: Hero, Features, How It Works, Legal links)
+│   ├── about.html            (Mission, principles, product architecture)
+│   ├── faq.html              (Frequently asked questions)
+│   ├── login.html            (Firebase Email/password login & password reset)
+│   ├── register.html         (Firebase registration with validation & terms)
+│   ├── dashboard.html        (Authenticated trip dashboard: metrics, invitations, trip explorer)
+│   ├── trip.html             (Detailed 5-tab trip hub: Overview, Expenses, Members, Balances, Settlements)
+│   ├── payments.html         (UPI payment claims ledger: sent, received, incoming confirmation)
+│   ├── profile.html          (Profile management, display name, linked UPI ID)
+│   ├── privacy.html          (Comprehensive privacy policy regarding data & manual UPI privacy)
+│   ├── terms.html            (Terms & Conditions: peer-to-peer utility, disclaimer of banking liability)
+│   ├── contact.html          (Contact & support submission form)
+│   ├── 404.html              (Friendly responsive 404 error page)
+│   ├── favicon.svg           (Custom brand SVG logo and favicon)
+│   ├── robots.txt            (Search engine crawler directives)
+│   ├── sitemap.xml           (Search engine sitemap covering all public pages)
+│   ├── assets/images/        (Static media assets)
+│   ├── css/
+│   │   ├── variables.css     (Brand palette: #03045E, #0077B6, #00B4D8, #90E0EF, #CAF0F8)
+│   │   ├── base.css          (Reset, accessible typography, focus rings)
+│   │   ├── components.css    (Buttons, cards, tabs, stats, modal, tables, alerts, AdSense slots)
+│   │   ├── layout.css        (Navbar, hero, sections, footer, container)
+│   │   ├── auth.css          (Auth cards, password toggles, profile grid)
+│   │   └── responsive.css    (Breakpoints, mobile navigation drawer)
+│   └── js/
+│       ├── firebase-config.js(Browser Firebase modular SDK initialization)
+│       ├── api.js            (Fetch wrapper injecting Bearer ID token; GET, POST, PATCH, DELETE)
+│       ├── auth.js           (Register, login, logout, resetPassword, onAuthChange)
+│       ├── auth-guard.js     (requireAuth and redirectIfAuth route guards)
+│       ├── navigation.js     (Responsive menu toggle and dynamic auth nav buttons)
+│       ├── login.js          (Login controller and password reset modal)
+│       ├── register.js       (Registration form controller)
+│       ├── dashboard.js      (Dashboard controller: trips list, stats, create trip modal, invitations)
+│       ├── trip.js           (Trip controller: tabs, expenses CRUD, members, balances, settlements, UPI)
+│       ├── payments.js       (Payments ledger controller: filter claims, confirm, reject)
+│       ├── profile.js        (Profile controller: view and update profile)
+│       ├── qrcode.js         (Client-side QR Code Model 2 SVG generator; no CDNs, CSP-safe)
+│       ├── ui.js             (Alerts, loading spinners, safe DOM helpers, escapeHtml)
+│       └── validation.js     (Client-side validation rules)
+├── server/
+│   ├── server.js             (Canonical Express server, static serving, CSP, rate limiting)
+│   ├── config/
+│   │   ├── firebaseAdmin.js  (Firebase Admin SDK singleton; production credentials + test mock fallback)
+│   │   └── mockFirestore.js  (In-memory Firestore & Auth mock engine for automated offline testing)
+│   ├── middleware/
+│   │   ├── authenticate.js   (Bearer ID token verification middleware via Firebase Admin SDK)
+│   │   └── errorHandler.js   (Centralized JSON error handler and API 404 handler)
+│   ├── routes/
+│   │   ├── healthRoutes.js   (GET /api/health)
+│   │   ├── authRoutes.js     (POST /api/auth/sync)
+│   │   ├── userRoutes.js     (GET /api/users/me, PATCH /api/users/me)
+│   │   ├── tripRoutes.js     (All trip, member, invitation, expense, balance, settlement endpoints)
+│   │   ├── invitationRoutes.js(GET /api/invitations, accept, reject, cancel)
+│   │   ├── settlementRoutes.js(POST /api/settlements/:settlementId/payments)
+│   │   └── paymentRoutes.js  (GET /api/payments, confirm, reject)
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── userController.js
+│   │   ├── tripController.js
+│   │   ├── invitationController.js
+│   │   ├── memberController.js
+│   │   ├── expenseController.js
+│   │   ├── balanceController.js
+│   │   ├── settlementController.js
+│   │   └── paymentController.js
+│   ├── services/
+│   │   ├── userService.js    (Firestore users CRUD, userCode generation)
+│   │   ├── tripService.js    (Trips lifecycle, membership, end trip, leave trip)
+│   │   ├── invitationService.js (Peer invitations, duplicate check, accept/reject/cancel)
+│   │   ├── memberService.js  (Joined member profiles)
+│   │   ├── expenseService.js (Integer paise expenses, splits, category validation, edit/delete)
+│   │   ├── balanceService.js (Total Paid, Total Share, Net Balance, SUM=0 audit)
+│   │   ├── settlementService.js (Min-Cash-Flow calculation, persistence, preserve PAID)
+│   │   └── paymentService.js (Manual UPI reporting, receiver confirmation, rejection, transactions)
+│   └── utils/
+│       ├── validation.js     (Email, display name, password, UPI handle, userCode generator)
+│       ├── money.js          (Integer paise conversion, formatting, equal/exact/percentage splits)
+│       ├── settlementEngine.js (Min-Cash-Flow graph debt minimization algorithm)
+│       └── upi.js            (Standard upi://pay URI generator, UTR syntax validation)
+├── tests/
+│   ├── health.test.js        (Integration tests for server, health, route protection)
+│   ├── validation.test.js    (Unit tests for validation functions)
+│   ├── profile.test.js       (Route protection and authorization tests)
+│   ├── money.test.js         (Integer paise math, remainder distribution, exact/percentage split)
+│   ├── settlement.test.js    (Balance calculation, Min-Cash-Flow optimization, reconciliation check)
+│   ├── upi.test.js           (UPI payment URI formatting and UTR validation)
+│   ├── trips.test.js         (Trip CRUD, end trip, leave trip balance checks)
+│   ├── invitations.test.js   (Invitation lifecycle, duplicate prevention, self-invite rejection)
+│   ├── expenses.test.js      (Expense creation, equal/exact/percentage splits, ended-trip freeze)
+│   ├── payments.test.js      (Payment reporting, duplicate UTR check, receiver confirm/reject)
+│   └── e2e-acceptance.test.js(Complete 16-step Goa Trip scenario: Karan, Rahul, Aman)
+├── firestore.rules           (Security rules: deny direct client writes to server collections)
+├── firestore.indexes.json    (Composite Firestore indexes for trips, expenses, members, payments)
+├── .env.example              (Environment variable template)
+├── .gitignore                (Excludes secrets, .env, and node_modules)
+├── package.json              (Node.js dependencies and scripts)
+├── README.md                 (Comprehensive setup and deployment guide)
+├── PROJECT_CONTEXT.txt       (Authoritative persistent technical memory)
+└── CHANGELOG.md              (Historical changes record)
+
+--------------------------------------------------------------------------------
+3. FIRESTORE DATABASE ARCHITECTURE
+--------------------------------------------------------------------------------
+8 Collections:
+
+1. users (Document ID: uid)
+   - uid: string
+   - email: string
+   - displayName: string
+   - userCode: string (unique, format 'TS-XXXXXX')
+   - upiId: string (e.g. 'user@okhdfcbank')
+   - createdAt: ISO string
+   - updatedAt: ISO string
+
+2. trips (Document ID: tripId, e.g. 'TRIP-XXXXXX')
+   - tripId: string
+   - name: string
+   - destination: string
+   - description: string
+   - startDate: string (YYYY-MM-DD or null)
+   - endDate: string (YYYY-MM-DD or null)
+   - currency: string (default 'INR')
+   - createdBy: string (uid of creator)
+   - status: 'ACTIVE' | 'ENDED'
+   - createdAt: ISO string
+   - updatedAt: ISO string
+   - endedAt: ISO string | null
+
+3. trip_members (Document ID: `${tripId}_${userId}`)
+   - id: string
+   - tripId: string
+   - userId: string
+   - role: 'OWNER' | 'MEMBER'
+   - status: 'ACTIVE' | 'LEFT'
+   - joinedAt: ISO string
+   - leftAt: ISO string | null
+
+4. invitations (Document ID: invitationId, e.g. 'INV-XXXXXX')
+   - invitationId: string
+   - tripId: string
+   - tripName: string
+   - tripDestination: string
+   - inviterId: string (uid of inviter)
+   - inviteeId: string | null (uid if resolved)
+   - inviteeEmail: string
+   - inviteeUserCode: string
+   - status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED'
+   - createdAt: ISO string
+   - respondedAt: ISO string | null
+
+5. expenses (Document ID: expenseId, e.g. 'EXP-XXXXXX')
+   - expenseId: string
+   - tripId: string
+   - title: string
+   - category: 'Accommodation' | 'Food' | 'Transport' | 'Shopping' | 'Activities' | 'Fuel' | 'Tickets' | 'Other'
+   - totalAmount: integer paise (e.g. ₹5000 -> 500000 paise)
+   - currency: string ('INR')
+   - paidBy: string (uid of active member who paid)
+   - splitType: 'EQUAL' | 'EXACT' | 'PERCENTAGE'
+   - participantIds: string[] (array of active member uids)
+   - description: string
+   - date: string (YYYY-MM-DD)
+   - createdBy: string (uid)
+   - createdAt: ISO string
+   - updatedAt: ISO string
+
+6. expense_splits (Document ID: `${expenseId}_${userId}`)
+   - splitId: string
+   - expenseId: string
+   - tripId: string
+   - userId: string
+   - allocatedAmount: integer paise
+   - percentage: number | null
+   - createdAt: ISO string
+
+7. settlements (Document ID: settlementId, e.g. 'SETTLE-XXXXXX')
+   - settlementId: string
+   - tripId: string
+   - fromUser: string (debtor uid)
+   - toUser: string (creditor uid)
+   - amount: integer paise
+   - currency: string ('INR')
+   - status: 'PENDING' | 'PAID'
+   - paymentId: string | null
+   - createdAt: ISO string
+   - settledAt: ISO string | null
+
+8. payments (Document ID: paymentId, e.g. 'PAY-XXXXXX')
+   - paymentId: string
+   - settlementId: string
+   - tripId: string
+   - payerId: string (debtor uid)
+   - payeeId: string (creditor uid)
+   - amount: integer paise
+   - paymentMethod: 'UPI'
+   - upiTransactionRef: string (UTR / bank reference)
+   - notes: string
+   - status: 'REPORTED' | 'CONFIRMED' | 'REJECTED'
+   - submittedAt: ISO string
+   - confirmedAt: ISO string | null
+   - rejectedAt: ISO string | null
+   - rejectionReason: string | null
+
+--------------------------------------------------------------------------------
+4. COMPLETE API ROUTE DOCUMENTATION
+--------------------------------------------------------------------------------
+All protected endpoints require Header: "Authorization: Bearer <Firebase_ID_Token>".
+
+Public Endpoints:
+- GET  /api/health
+  Reports server health, uptime, timestamp, and Firebase Admin connection state.
+- GET  /api/config/firebase
+  Returns safe client Firebase Web configuration (apiKey, authDomain, projectId, etc.).
+
+Authentication:
+- POST /api/auth/sync
+  Verifies ID token and creates or syncs Firestore profile in `users`.
+
+User Profiles:
+- GET  /api/users/me
+  Returns profile of authenticated user.
+- PATCH /api/users/me
+  Updates allowed fields: `displayName`, `upiId`. Rejects attempts to alter immutable fields.
+
+Trips:
+- POST  /api/trips
+  Body: { name, destination, startDate, endDate, currency, description }
+  Creates trip, assigns creator as OWNER and ACTIVE member. Status: ACTIVE.
+- GET   /api/trips
+  Query: status (ACTIVE|ENDED), q (search text)
+  Returns all trips associated with user, role, and active member count.
+- GET   /api/trips/:tripId
+  Returns detailed trip data. Rejects non-members with 403.
+- PATCH /api/trips/:tripId
+  Updates trip details. Allowed only if trip is ACTIVE and user is OWNER.
+- POST  /api/trips/:tripId/end
+  Transitions trip to ENDED. Disables further expenses, invitations, and financial edits.
+- POST  /api/trips/:tripId/leave
+  Leaves trip. Requires net balance to be 0 (factoring in confirmed settlements). Updates status to LEFT.
+
+Members:
+- GET  /api/trips/:tripId/members
+  Lists all trip members joined with their display name, userCode, email, role, and upiId.
+
+Invitations:
+- POST /api/trips/:tripId/invitations
+  Body: { email } OR { userCode }
+  Invites a friend. Prevents duplicates and self-invites. Status: PENDING.
+- GET  /api/invitations
+  Lists all incoming invitations for authenticated user.
+- GET  /api/trips/:tripId/invitations
+  Lists sent invitations for a trip.
+- POST /api/invitations/:invitationId/accept
+  Validates recipient identity. Adds user as ACTIVE member, marks invitation ACCEPTED.
+- POST /api/invitations/:invitationId/reject
+  Validates recipient identity. Marks invitation REJECTED.
+- POST /api/invitations/:invitationId/cancel
+  Allows inviter or trip OWNER to cancel a PENDING invitation.
+
+Expenses:
+- POST   /api/trips/:tripId/expenses
+  Body: { title, amount, category, paidBy, splitType, participantIds, customSplits, date, description }
+  Calculates integer paise splits (EQUAL, EXACT, PERCENTAGE). Writes expense and splits atomically.
+- GET    /api/trips/:tripId/expenses
+  Returns expense ledger with splits, category icon, and member names.
+- GET    /api/trips/:tripId/expenses/:expenseId
+  Returns single expense with its splits.
+- PATCH  /api/trips/:tripId/expenses/:expenseId
+  Edits expense (creator or OWNER only; ACTIVE trips only). Recalculates splits.
+- DELETE /api/trips/:tripId/expenses/:expenseId
+  Deletes expense and splits atomically (creator or OWNER only; ACTIVE trips only).
+
+Balances:
+- GET /api/trips/:tripId/balances
+  Computes Total Paid, Total Share, and Net Balance for each member.
+  Verifies mathematical invariant: SUM(all net balances) === 0.
+
+Settlements:
+- POST /api/trips/:tripId/settlements/calculate
+  Executes Min-Cash-Flow algorithm to generate minimized peer-to-peer settlement graph.
+- GET  /api/trips/:tripId/settlements
+  Returns existing settlements for trip with debtor and creditor profiles and UPI VPAs.
+
+Payments:
+- POST /api/settlements/:settlementId/payments
+  Body: { upiTransactionRef, notes }
+  "I Paid" submission by debtor. Validates UTR, checks duplicates. Status: REPORTED.
+- GET  /api/payments
+  Query: type (sent|received|all), status (REPORTED|CONFIRMED|REJECTED)
+  Returns user's payment records.
+- POST /api/payments/:paymentId/confirm
+  Receiver confirmation. Validates payee identity; executes atomic transaction:
+  payment -> CONFIRMED, settlement -> PAID. Prevents self-confirmation and double confirmation.
+- POST /api/payments/:paymentId/reject
+  Receiver rejection. Validates payee identity; updates payment -> REJECTED with reason.
+  Settlement remains PENDING for resubmission.
+
+--------------------------------------------------------------------------------
+5. MATHEMATICAL & FINANCIAL PRECISION RULES
+--------------------------------------------------------------------------------
+1. Integer Paise Standard:
+   - Floating-point representations of currency are strictly forbidden in Firestore.
+   - All monetary values are stored as integer paise (e.g. ₹5,000.00 = 500000 paise).
+   - Conversions: `rupeesToPaise(val) = Math.round(val * 100)`.
+
+2. Deterministic Remainder Distribution for Equal Splits:
+   - When dividing total amount `T` (in paise) among `N` participants:
+     `baseShare = Math.floor(T / N)`
+     `remainder = T % N`
+   - Participants are sorted deterministically by `userId` (alphabetical).
+   - The first `remainder` participants receive `baseShare + 1` paisa.
+   - The remaining participants receive `baseShare`.
+   - Invariant: `SUM(allocatedAmount) === T` strictly.
+
+3. Exact Splits:
+   - User specifies exact share for each participant in paise.
+   - Server validates `SUM(allocatedAmount) === totalAmount`. Rejects if sum mismatches.
+
+4. Percentage Splits:
+   - User specifies percentage for each participant.
+   - Server validates `SUM(percentage) === 100.00`.
+   - Each share: `Math.round((pct * totalAmount) / 100)`.
+   - Any rounding discrepancy `diff = totalAmount - SUM(shares)` is deterministically absorbed
+     by the participant with the highest percentage.
+   - Invariant: `SUM(allocatedAmount) === totalAmount` strictly.
+
+5. Net Balance Formula:
+   - `Net Balance = Total Paid - Total Share`
+   - Invariant: `SUM(all member net balances) === 0` strictly.
+
+--------------------------------------------------------------------------------
+6. SETTLEMENT ENGINE (MIN-CASH-FLOW ALGORITHM)
+--------------------------------------------------------------------------------
+- Purpose: Minimizes the number of peer-to-peer financial transactions needed to settle a group.
+- Steps:
+  1. Calculate net balance for each member.
+  2. Verify balance reconciliation: `SUM(netBalances) === 0`.
+  3. Separate members into Creditors (`netBalance > 0`) and Debtors (`netBalance < 0`).
+  4. In a loop, select the maximum debtor (`abs(netBalance)`) and maximum creditor (`netBalance`).
+  5. Settle amount `A = Math.min(debtor.owed, creditor.due)` in integer paise.
+  6. Create settlement: `{ fromUser: debtor.uid, toUser: creditor.uid, amount: A, status: 'PENDING' }`.
+  7. Update debtor and creditor remaining amounts. Remove fully settled entities.
+  8. Repeat until all balances are zero.
+- Guarantees:
+  - Minimum number of cash transfers.
+  - No self-payments (`fromUser !== toUser`).
+  - No zero or negative transfers (`amount > 0`).
+  - Total debtor payments strictly equal total creditor receipts.
+
+--------------------------------------------------------------------------------
+7. MANUAL UPI PAYMENT SYSTEM LIFECYCLE
+--------------------------------------------------------------------------------
+1. Profile UPI Setup:
+   - Users save their UPI ID (VPA) in Profile (validated by regex `/^[a-zA-Z0-9.\-_]{2,60}@[a-zA-Z0-9]{2,30}$/`).
+   - Clear disclosure that syntax validation does not verify bank availability or ownership.
+
+2. Settlement Payment Initiated:
+   - Debtor views PENDING settlement owed to Creditor.
+   - Debtor clicks "Pay via UPI".
+
+3. UPI URI & QR Code Generation:
+   - Generated URI format:
+     `upi://pay?pa=creditor@vpa&pn=CreditorName&am=1666.67&cu=INR&tn=TripSplit%20Settlement&tr=SETTLE-ID`
+   - Client generates standard QR Code Model 2 SVG without external network calls (CSP-compliant).
+   - User can:
+     - Scan QR Code with any UPI app (GPay, PhonePe, Paytm, BHIM, Cred, banking apps).
+     - Tap "Open in UPI App" deep link.
+     - Copy UPI ID and Amount.
+
+4. "I Paid" Flow:
+   - Debtor makes transfer in their external UPI app.
+   - Debtor clicks "I Paid" in TripSplit and enters the 12-digit bank reference (UTR).
+   - System records payment in `payments` collection with status: `REPORTED`.
+   - Debtor cannot confirm their own payment.
+
+5. Receiver Verification:
+   - Creditor sees incoming payment claim in dashboard, trip settlements tab, and payments ledger.
+   - Creditor checks their banking app or bank SMS to verify receipt of funds.
+   - If credited: Creditor clicks "Confirm Payment".
+     - Atomic Firestore transaction transitions payment to `CONFIRMED` and settlement to `PAID`.
+   - If not credited or incorrect reference: Creditor clicks "Reject Payment".
+     - Payment transitions to `REJECTED` with reason recorded.
+     - Settlement remains `PENDING` so debtor can resubmit a corrected UTR.
+
+--------------------------------------------------------------------------------
+8. SECURITY MODEL
+--------------------------------------------------------------------------------
+1. Server-Side Authorization:
+   - All protected routes read `Authorization: Bearer <ID_Token>`.
+   - Decoded via Firebase Admin SDK.
+   - Zero trust in client-supplied `uid`, `role`, `status`, `amount`, or calculations.
+   - Membership and role verification before reading or mutating trip data.
+   - Ended trips are completely frozen against new expenses, invitations, and financial edits.
+   - Debtors cannot confirm their own payments; only intended payees can confirm or reject.
+
+2. Firestore Security Rules (`firestore.rules`):
+   - Direct client writes to server-managed collections (`trips`, `trip_members`, `invitations`,
+     `expenses`, `expense_splits`, `settlements`, `payments`) are completely denied.
+   - Only backend Admin SDK can mutate financial ledgers.
+
+3. Network & Headers:
+   - Helmet with Content Security Policy allowing Firebase Auth CDN, Google APIs, and self-hosted SVG.
+   - Rate limiting on API endpoints and stricter limit on authentication endpoints.
+   - Sanitized input handling against XSS and injection.
+
+--------------------------------------------------------------------------------
+9. ENVIRONMENT VARIABLES (NAMES ONLY — NO SECRETS)
+--------------------------------------------------------------------------------
+Server & Environment:
+- PORT
+- NODE_ENV
+
+Firebase Admin SDK (Server-Side):
+- FIREBASE_PROJECT_ID
+- FIREBASE_CLIENT_EMAIL
+- FIREBASE_PRIVATE_KEY
+- GOOGLE_APPLICATION_CREDENTIALS (optional alternative)
+
+Firebase Web (Client-Side — served via /api/config/firebase):
+- FIREBASE_API_KEY
+- FIREBASE_AUTH_DOMAIN
+- FIREBASE_STORAGE_BUCKET
+- FIREBASE_MESSAGING_SENDER_ID
+- FIREBASE_APP_ID
+
+--------------------------------------------------------------------------------
+10. LOCAL SETUP & VERIFICATION
+--------------------------------------------------------------------------------
+1. Install dependencies:
+   npm install
+
+2. Run automated test suite:
+   npm test
+   (Executes 82 tests across 25 suites using Node.js native test runner)
+
+3. Start server locally:
+   npm start
+   (Starts Express on PORT or 3002, accessible at http://localhost:3002)
+
+4. Verify health endpoint:
+   curl http://localhost:3002/api/health
+
+--------------------------------------------------------------------------------
+11. RENDER DEPLOYMENT INSTRUCTIONS
+--------------------------------------------------------------------------------
+- Deployment Type: Web Service (One service runs both Express API and static frontend)
+- Environment: Node
+- Build Command: npm install
+- Start Command: npm start
+- Environment Variables in Render Dashboard:
+  - NODE_ENV = production
+  - PORT = 10000 (or Render default)
+  - FIREBASE_PROJECT_ID = <your-project-id>
+  - FIREBASE_CLIENT_EMAIL = <service-account-email>
+  - FIREBASE_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+  - FIREBASE_API_KEY = <web-api-key>
+  - FIREBASE_AUTH_DOMAIN = <project-id>.firebaseapp.com
+  - FIREBASE_STORAGE_BUCKET = <project-id>.appspot.com
+  - FIREBASE_MESSAGING_SENDER_ID = <sender-id>
+  - FIREBASE_APP_ID = <app-id>
+
+--------------------------------------------------------------------------------
+12. ACTUAL AUTOMATED TESTS EXECUTED & PASSED
+--------------------------------------------------------------------------------
+Total Tests: 82
+Suites: 25
+Passing: 82
+Failing: 0
+Execution Time: ~390 ms
+
+Suites Breakdown:
+1. End-to-End Acceptance Test: 16-Step Complete Scenario (Karan, Rahul, Aman on Goa Trip) — 16/16 PASSED
+2. Expenses API Endpoints & Splitting Invariants (EQUAL, EXACT, PERCENTAGE, freeze on end) — 5/5 PASSED
+3. Server & Health API Endpoints — 7/7 PASSED
+4. Invitations API Endpoints & Access Control (invite, duplicate check, self-invite, accept, reject) — 5/5 PASSED
+5. Money, Currency & Split Calculations (rupeesToPaise, format, remainder rule, percentage) — 15/15 PASSED
+6. Payments API Endpoints & State Machine (report, UTR check, confirm, self-confirm check, double confirm, reject) — 6/6 PASSED
+7. User Profile Route Protection & Validation — 2/2 PASSED
+8. Settlement Engine & Balance Calculations (Paid - Share, reconciliation, Min-Cash-Flow) — 5/5 PASSED
+9. Trips API Endpoints & Business Logic (create, validate, non-member 403, end trip, leave trip) — 7/7 PASSED
+10. UPI Payment Utilities (generateUpiUri, validateUtr) — 6/6 PASSED
+11. Validation Utilities (email, name, password, upi, userCode) — 8/8 PASSED
+
+================================================================================
+END OF PROJECT CONTEXT
+================================================================================

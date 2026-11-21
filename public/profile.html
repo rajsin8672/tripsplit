@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Profile — TripSplit</title>
+  <meta name="description" content="View and update your TripSplit profile, display name, and linked UPI payment ID.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="/index.html" class="brand-logo" aria-label="TripSplit Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#03045E"/>
+          <path d="M9 8 C9 8, 13 13, 16 16 C19 19, 23 24, 23 24" stroke="#90E0EF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M23 8 C23 8, 19 13, 16 16 C13 19, 9 24, 9 24" stroke="#00B4D8" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="3" fill="#CAF0F8" stroke="#03045E" stroke-width="1.5"/>
+        </svg>
+        <span>Trip<span class="brand-accent">Split</span></span>
+      </a>
+
+      <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="hamburger-box" aria-hidden="true">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </span>
+      </button>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+          <li><a href="/payments.html" class="nav-link">Payments</a></li>
+          <li><a href="/profile.html" class="nav-link active">Profile</a></li>
+          <li><a href="/faq.html" class="nav-link">FAQ</a></li>
+          <li class="nav-auth-group">
+            <a href="/dashboard.html" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Loading State Indicator -->
+  <div class="loading-container" id="profile-loading" aria-live="polite">
+    <div class="spinner spinner-primary spinner-lg" aria-hidden="true"></div>
+    <div class="loading-text">Loading your profile details...</div>
+  </div>
+
+  <!-- Main Profile Page Container -->
+  <main id="main-content" class="profile-page">
+    <div class="container">
+      <div id="profile-alert" aria-live="polite"></div>
+
+      <div class="profile-grid" id="profile-content" style="display: none;">
+        <!-- Left: User Identity Card -->
+        <div class="card profile-card-user">
+          <div class="profile-avatar-circle" id="profile-avatar-letter" aria-hidden="true">U</div>
+          <h2 id="profile-card-name">Your Profile</h2>
+          <p class="profile-email">Synced with Firebase Firestore</p>
+
+          <div style="margin-top: 1.5rem; text-align: left; background-color: var(--color-surface-alt); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">Account Security</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              Immutable fields (User ID, User Code, and Email ownership) are guarded by server verification.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Profile Edit Form -->
+        <div class="card">
+          <div class="card-header">
+            <h3 style="font-size: 1.25rem; margin-bottom: 0;">Account Information</h3>
+          </div>
+          <div class="card-body">
+            <form id="profile-form" novalidate>
+              <div class="form-group">
+                <label for="profile-name" class="form-label required">Display name</label>
+                <input
+                  type="text"
+                  id="profile-name"
+                  class="form-input"
+                  placeholder="e.g. Alex Morgan"
+                  required
+                >
+                <span class="form-hint">This name is visible to travel group members.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="profile-upi" class="form-label">UPI ID (Virtual Payment Address)</label>
+                <input
+                  type="text"
+                  id="profile-upi"
+                  class="form-input"
+                  placeholder="e.g. yourname@okhdfcbank or 9876543210@paytm"
+                >
+                <span class="form-hint">
+                  Used by friends to settle balances directly to your bank account. Syntax is validated; please ensure the handle is active in your UPI app.
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label for="profile-email" class="form-label">Registered Email</label>
+                <input
+                  type="email"
+                  id="profile-email"
+                  class="form-input readonly-field"
+                  readonly
+                  disabled
+                >
+                <span class="form-hint">Email address cannot be changed directly in profile settings.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="profile-usercode" class="form-label">Unique User Code</label>
+                <input
+                  type="text"
+                  id="profile-usercode"
+                  class="form-input readonly-field"
+                  readonly
+                  disabled
+                >
+                <span class="form-hint">Assigned upon registration. Used to invite and connect you to trips in Phase 2.</span>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary btn-lg" id="profile-save-btn">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 TripSplit. All rights reserved.</div>
+        <div>Peer-to-peer travel expense tracking utility.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module" src="/js/profile.js"></script>
+</body>
+</html>

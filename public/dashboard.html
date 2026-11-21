@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — TripSplit</title>
+  <meta name="description" content="TripSplit Dashboard - Manage your trips, view balances, invite friends, and settle travel expenses simply.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="/index.html" class="brand-logo" aria-label="TripSplit Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#03045E"/>
+          <path d="M9 8 C9 8, 13 13, 16 16 C19 19, 23 24, 23 24" stroke="#90E0EF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M23 8 C23 8, 19 13, 16 16 C13 19, 9 24, 9 24" stroke="#00B4D8" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="3" fill="#CAF0F8" stroke="#03045E" stroke-width="1.5"/>
+        </svg>
+        <span>Trip<span class="brand-accent">Split</span></span>
+      </a>
+
+      <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="hamburger-box" aria-hidden="true">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </span>
+      </button>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="/dashboard.html" class="nav-link active">Dashboard</a></li>
+          <li><a href="/payments.html" class="nav-link">Payments</a></li>
+          <li><a href="/profile.html" class="nav-link">Profile</a></li>
+          <li><a href="/faq.html" class="nav-link">FAQ</a></li>
+          <li class="nav-auth-group">
+            <button type="button" class="btn btn-outline btn-sm" id="dash-logout-btn">Log Out</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Loading State Indicator -->
+  <div class="loading-container" id="dashboard-loading" aria-live="polite">
+    <div class="spinner spinner-primary spinner-lg" aria-hidden="true"></div>
+    <div class="loading-text">Loading your TripSplit dashboard...</div>
+  </div>
+
+  <!-- Error State Container -->
+  <div class="container" id="dashboard-error" style="display: none; padding: 3rem 1.5rem;">
+    <div class="card" style="max-width: 600px; margin: 0 auto; text-align: center;">
+      <div class="card-body">
+        <div class="empty-state-icon" style="background-color: var(--color-danger-bg); color: var(--color-danger);">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3>Unable to Load Dashboard</h3>
+        <p id="dashboard-error-message" style="margin-bottom: 1.5rem;">
+          An error occurred while fetching your account data.
+        </p>
+        <button type="button" class="btn btn-primary" id="dashboard-retry-btn">Retry Connection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authenticated Dashboard Content -->
+  <div id="dashboard-content" style="display: none;">
+    <!-- Welcome Header Bar -->
+    <section class="dashboard-header">
+      <div class="container">
+        <div class="dashboard-user-bar">
+          <div>
+            <h1 class="user-welcome-title">Welcome, <span id="dash-user-name">Friend</span>!</h1>
+            <div class="user-meta-tags">
+              <span class="badge badge-navy">
+                User Code: <strong id="dash-user-code" class="user-code-pill">TS-XXXXXX</strong>
+              </span>
+              <span class="badge badge-success">Account Active</span>
+              <span class="badge badge-cyan">Phase 2 & 3 Enabled</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" id="open-create-trip-btn">
+              + Create New Trip
+            </button>
+            <a href="/profile.html" class="btn btn-secondary">Edit Profile & UPI</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Section -->
+    <main id="main-content" class="dashboard-main">
+      <div class="container">
+        <div id="dashboard-alert-container"></div>
+
+        <!-- High-level Metric Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card stat-info">
+            <div class="stat-label">Active Trips</div>
+            <div class="stat-value" id="stat-active-trips">0</div>
+            <div class="stat-hint">Ongoing travel groups</div>
+          </div>
+          <div class="stat-card stat-navy">
+            <div class="stat-label">Total Group Expenses</div>
+            <div class="stat-value" id="stat-total-expenses">₹0.00</div>
+            <div class="stat-hint">Across your active trips</div>
+          </div>
+          <div class="stat-card stat-success">
+            <div class="stat-label">Pending Invitations</div>
+            <div class="stat-value" id="stat-pending-invitations">0</div>
+            <div class="stat-hint">Awaiting your response</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Ended Trips</div>
+            <div class="stat-value" id="stat-ended-trips">0</div>
+            <div class="stat-hint">Archived travel ledgers</div>
+          </div>
+        </div>
+
+        <!-- Pending Invitations Section (Hidden if empty) -->
+        <div id="invitations-section" style="display: none; margin-bottom: 2.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 style="font-size: 1.25rem; color: var(--color-navy); margin: 0;">
+              Pending Trip Invitations
+            </h2>
+            <span class="badge badge-warning" id="invitations-count-badge">0 Pending</span>
+          </div>
+          <div id="invitations-list" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+        </div>
+
+        <!-- Trips Explorer Section -->
+        <div style="margin-bottom: 2.5rem;">
+          <div class="toolbar-container">
+            <div class="search-input-wrapper">
+              <span class="search-input-icon" aria-hidden="true">&#128269;</span>
+              <input
+                type="text"
+                id="trip-search-input"
+                class="form-input"
+                placeholder="Search trips by name or destination..."
+                aria-label="Search trips"
+              >
+            </div>
+            <div class="filter-pills" role="tablist" aria-label="Trip status filter">
+              <button type="button" class="filter-pill active" data-filter="all" role="tab" aria-selected="true">All Trips</button>
+              <button type="button" class="filter-pill" data-filter="ACTIVE" role="tab" aria-selected="false">Active</button>
+              <button type="button" class="filter-pill" data-filter="ENDED" role="tab" aria-selected="false">Ended</button>
+            </div>
+          </div>
+
+          <!-- Trip Cards Grid -->
+          <div id="trips-container" class="trips-grid"></div>
+
+          <!-- Empty State Container -->
+          <div id="trips-empty-state" class="empty-state" style="display: none;">
+            <div class="empty-state-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <h3 id="empty-state-title">No Trips Found</h3>
+            <p id="empty-state-desc">You are not currently a member of any trips. Create your first trip to start splitting expenses with friends!</p>
+            <button type="button" class="btn btn-primary" id="empty-create-trip-btn">+ Create a Trip</button>
+          </div>
+        </div>
+
+        <!-- Optional AdSense Slot (Standard, non-intrusive container) -->
+        <div class="adsense-slot" aria-hidden="true">
+          <div class="adsense-label">Advertisement</div>
+          <div style="font-size: 0.85rem; color: var(--text-light); padding: 1rem 0;">
+            TripSplit is free and open. Keep expenses simple wherever you travel.
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create Trip Modal Dialog -->
+  <div class="modal-backdrop" id="create-trip-modal" role="dialog" aria-modal="true" aria-labelledby="create-trip-title">
+    <div class="modal-box">
+      <button type="button" class="modal-close" id="close-create-trip-btn" aria-label="Close dialog">&times;</button>
+      <h2 id="create-trip-title" style="font-size: 1.35rem; color: var(--color-navy); margin-bottom: 0.5rem;">Create a New Trip</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Set up your travel group. You can invite friends and add shared expenses anytime.
+      </p>
+
+      <div id="create-trip-alert"></div>
+
+      <form id="create-trip-form" novalidate>
+        <div class="form-group">
+          <label for="trip-name" class="form-label required">Trip Name</label>
+          <input
+            type="text"
+            id="trip-name"
+            class="form-input"
+            placeholder="e.g. Goa Trip, Manali Trek"
+            required
+            maxlength="100"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="trip-destination" class="form-label required">Destination</label>
+          <input
+            type="text"
+            id="trip-destination"
+            class="form-input"
+            placeholder="e.g. North Goa, India"
+            required
+            maxlength="100"
+          >
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="trip-start-date" class="form-label">Start Date</label>
+            <input type="date" id="trip-start-date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="trip-end-date" class="form-label">End Date</label>
+            <input type="date" id="trip-end-date" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="trip-currency" class="form-label">Currency</label>
+          <select id="trip-currency" class="form-input">
+            <option value="INR" selected>INR (₹) — Indian Rupee</option>
+            <option value="USD">USD ($) — US Dollar</option>
+            <option value="EUR">EUR (€) — Euro</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="trip-description" class="form-label">Description (Optional)</label>
+          <textarea
+            id="trip-description"
+            class="form-input"
+            rows="2"
+            placeholder="Notes about the itinerary, hotel, or group guidelines..."
+            maxlength="300"
+          ></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-outline" id="cancel-create-trip-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submit-create-trip-btn">Create Trip</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
+        <div>
+          <a href="/index.html" class="brand-logo" style="margin-bottom: 0.5rem;">
+            <span>Trip<span class="brand-accent">Split</span></span>
+          </a>
+          <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 320px;">
+            Share Expenses. Settle Simply. Peer-to-peer travel expense tracking with manual UPI settlements.
+          </p>
+        </div>
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-navy); margin-bottom: 0.5rem;">PRODUCT</div>
+            <ul style="list-style: none; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem;">
+              <li><a href="/dashboard.html" class="nav-link" style="padding: 0;">Dashboard</a></li>
+              <li><a href="/payments.html" class="nav-link" style="padding: 0;">Payments</a></li>
+              <li><a href="/profile.html" class="nav-link" style="padding: 0;">Profile</a></li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-navy); margin-bottom: 0.5rem;">LEGAL & HELP</div>
+            <ul style="list-style: none; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem;">
+              <li><a href="/faq.html" class="nav-link" style="padding: 0;">FAQ</a></li>
+              <li><a href="/privacy.html" class="nav-link" style="padding: 0;">Privacy Policy</a></li>
+              <li><a href="/terms.html" class="nav-link" style="padding: 0;">Terms & Conditions</a></li>
+              <li><a href="/contact.html" class="nav-link" style="padding: 0;">Contact Us</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom" style="border-top: none; padding-top: 1rem;">
+        <div>&copy; 2026 TripSplit. All rights reserved.</div>
+        <div>Peer-to-peer travel expense tracking utility. Not a bank or payment processor.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module" src="/js/dashboard.js"></script>
+</body>
+</html>

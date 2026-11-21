@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment History & Claims — TripSplit</title>
+  <meta name="description" content="Track your manual UPI payment claims, incoming transfers, and confirmed settlements across all trips on TripSplit.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="/index.html" class="brand-logo" aria-label="TripSplit Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#03045E"/>
+          <path d="M9 8 C9 8, 13 13, 16 16 C19 19, 23 24, 23 24" stroke="#90E0EF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M23 8 C23 8, 19 13, 16 16 C13 19, 9 24, 9 24" stroke="#00B4D8" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="3" fill="#CAF0F8" stroke="#03045E" stroke-width="1.5"/>
+        </svg>
+        <span>Trip<span class="brand-accent">Split</span></span>
+      </a>
+
+      <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="hamburger-box" aria-hidden="true">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </span>
+      </button>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="/dashboard.html" class="nav-link">Dashboard</a></li>
+          <li><a href="/payments.html" class="nav-link active">Payments</a></li>
+          <li><a href="/profile.html" class="nav-link">Profile</a></li>
+          <li><a href="/faq.html" class="nav-link">FAQ</a></li>
+          <li class="nav-auth-group">
+            <button type="button" class="btn btn-outline btn-sm" id="pay-logout-btn">Log Out</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Loading State Indicator -->
+  <div class="loading-container" id="payments-loading" aria-live="polite">
+    <div class="spinner spinner-primary spinner-lg" aria-hidden="true"></div>
+    <div class="loading-text">Loading payment claims and history...</div>
+  </div>
+
+  <!-- Error State Container -->
+  <div class="container" id="payments-error" style="display: none; padding: 3rem 1.5rem;">
+    <div class="card" style="max-width: 600px; margin: 0 auto; text-align: center;">
+      <div class="card-body">
+        <h3>Unable to Load Payments</h3>
+        <p id="payments-error-message" style="margin-bottom: 1.5rem;">Failed to fetch payment records.</p>
+        <button type="button" class="btn btn-primary" id="payments-retry-btn">Retry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authenticated Payments Main Content -->
+  <div id="payments-content" style="display: none;">
+    <section class="dashboard-header">
+      <div class="container">
+        <div class="dashboard-user-bar">
+          <div>
+            <h1 class="user-welcome-title">UPI Payment Ledger</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem;">
+              Review peer-to-peer UPI claims, confirm incoming bank transfers, and audit your transaction history.
+            </p>
+          </div>
+          <div>
+            <a href="/dashboard.html" class="btn btn-secondary">&larr; Back to Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="dashboard-main">
+      <div class="container">
+        <div id="payments-alert-container"></div>
+
+        <!-- Metric Stat Cards -->
+        <div class="stats-grid">
+          <div class="stat-card stat-success">
+            <div class="stat-label">Pending Claims for You</div>
+            <div class="stat-value" id="stat-pending-claims">0</div>
+            <div class="stat-hint">Transfers awaiting your confirmation</div>
+          </div>
+          <div class="stat-card stat-navy">
+            <div class="stat-label">Confirmed Received</div>
+            <div class="stat-value" id="stat-confirmed-received">₹0.00</div>
+            <div class="stat-hint">Total credited to your account</div>
+          </div>
+          <div class="stat-card stat-info">
+            <div class="stat-label">Confirmed Paid</div>
+            <div class="stat-value" id="stat-confirmed-paid">₹0.00</div>
+            <div class="stat-hint">Total settled to friends</div>
+          </div>
+        </div>
+
+        <!-- Toolbar & Filter Pills -->
+        <div class="toolbar-container">
+          <div class="filter-pills" role="tablist" aria-label="Payment type filter">
+            <button type="button" class="filter-pill active" data-filter="all" role="tab" aria-selected="true">All Records</button>
+            <button type="button" class="filter-pill" data-filter="claims" role="tab" aria-selected="false">Incoming Claims</button>
+            <button type="button" class="filter-pill" data-filter="sent" role="tab" aria-selected="false">Sent by Me</button>
+            <button type="button" class="filter-pill" data-filter="CONFIRMED" role="tab" aria-selected="false">Confirmed</button>
+          </div>
+        </div>
+
+        <!-- Payments Table -->
+        <div class="data-table-container">
+          <table class="data-table" aria-label="Payments Ledger Table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Trip</th>
+                <th>Payer</th>
+                <th>Payee</th>
+                <th>Amount (₹)</th>
+                <th>Bank UTR / Reference</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="payments-table-body"></tbody>
+          </table>
+        </div>
+
+        <!-- Empty State Container -->
+        <div id="payments-empty-state" class="empty-state" style="display: none;">
+          <div class="empty-state-icon" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3>No Payment Records Found</h3>
+          <p>You have not reported or received any UPI payments yet. Settlement claims will appear here once trips are settled.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Confirm Dialog Modal -->
+  <div class="modal-backdrop" id="payments-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="payments-confirm-title">
+    <div class="modal-box">
+      <h3 id="payments-confirm-title" style="font-size: 1.25rem; color: var(--color-navy); margin-bottom: 0.75rem;">Confirm Action</h3>
+      <p id="payments-confirm-message" style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Are you sure?
+      </p>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-outline" id="payments-confirm-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="payments-confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 TripSplit. All rights reserved.</div>
+        <div>Peer-to-peer travel expense tracking utility. Not a bank or payment processor.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module" src="/js/payments.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — TripSplit</title>
+  <meta name="description" content="TripSplit Privacy Policy - Transparency regarding data collection, Firestore storage, and manual UPI reference privacy.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="/index.html" class="brand-logo" aria-label="TripSplit Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#03045E"/>
+          <path d="M9 8 C9 8, 13 13, 16 16 C19 19, 23 24, 23 24" stroke="#90E0EF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M23 8 C23 8, 19 13, 16 16 C13 19, 9 24, 9 24" stroke="#00B4D8" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="3" fill="#CAF0F8" stroke="#03045E" stroke-width="1.5"/>
+        </svg>
+        <span>Trip<span class="brand-accent">Split</span></span>
+      </a>
+
+      <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="hamburger-box" aria-hidden="true">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </span>
+      </button>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="/index.html" class="nav-link">Home</a></li>
+          <li><a href="/about.html" class="nav-link">About</a></li>
+          <li><a href="/faq.html" class="nav-link">FAQ</a></li>
+          <li class="nav-auth-group" id="nav-auth-container">
+            <a href="/login.html" class="nav-link">Login</a>
+            <a href="/register.html" class="btn btn-primary btn-sm">Register</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" style="padding: 3.5rem 0;">
+    <div class="container" style="max-width: 840px;">
+      <h1 style="font-size: 2.25rem; color: var(--color-navy); margin-bottom: 0.5rem;">Privacy Policy</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+        Last updated: October 2026 &bull; Effective immediately for all users.
+      </p>
+
+      <div class="card" style="padding: 2.5rem; line-height: 1.7; color: var(--text-main);">
+        <h2 style="font-size: 1.35rem; color: var(--color-navy); margin-top: 0;">1. Introduction</h2>
+        <p>
+          TripSplit ("we", "our", or "us") provides a peer-to-peer travel expense sharing and ledger calculation application. This Privacy Policy transparently describes what information we collect, how it is stored, and your control over your data.
+        </p>
+
+        <h2 style="font-size: 1.35rem; color: var(--color-navy); margin-top: 1.75rem;">2. Information We Collect</h2>
+        <p>When you register and use TripSplit, we collect only information necessary to deliver travel ledger functionality:</p>
+        <ul style="padding-left: 1.5rem; margin-bottom: 1rem;">
+          <li><strong>Authentication Information:</strong> Your registered email address and authentication credentials securely managed through Google Firebase Authentication.</li>
+          <li><strong>Profile Information:</strong> Your display name, uniquely generated User Code (e.g. <code>TS-XXXXXX</code>), and optional Virtual Payment Address (UPI ID) provided to facilitate peer-to-peer settlement.</li>
+          <li><strong>Travel Group & Ledger Data:</strong> Trip names, destinations, dates, expense amounts, categories, split proportions, and member association.</li>
+          <li><strong>Settlement & Reference Data:</strong> User-submitted UPI transaction reference numbers (UTR / RRN) and payment claim statuses.</li>
+        </ul>
+
+        <h2 style="font-size: 1.35rem; color: var(--color-navy); margin-top: 1.75rem;">3. Clarification on Financial & Payment Data</h2>
+        <p>
+          <strong>TripSplit is not a bank, payment gateway, or financial intermediary.</strong> We do not collect, process, or store credit card numbers, debit card numbers, CVVs, bank account login credentials, or UPI PINs.
+        </p>
+        <p>
+          All monetary payments between users occur externally through third-party UPI applications (e.g. Google Pay, PhonePe, Paytm, BHIM, or banking apps). TripSplit only stores user-entered transaction reference strings (UTRs) for ledger recordkeeping and receiver confirmation.
+        </p>
+
+        <h2 style="font-size: 1.35rem; color: var(--color-navy); margin-top: 1.75rem;">4. How We Use and Share Information</h2>
+        <p>
+          Your information is used solely to maintain your travel groups, compute mathematical balance ledgers, and enable friends within your trips to settle debts. Your profile display name and UPI ID are visible only to members of trips you join. We do not sell, rent, or monetize your personal or financial ledger data to third parties.
+        </p>
+
+        <h2 style="font-size: 1.35rem; color: var(--color-navy); margin-top: 1.75rem;">5. Data Storage and Security</h2>
+        <p>
+          All profile and ledger information is stored in Google Cloud Firestore and protected by server-side authorization controls and token verification via the Firebase Admin SDK. Sensitive database mutations operate through atomic transactions to preserve financial integrity.
+        </p>
+
+        <h2 style="font-size: 1.35rem; color: var(--color-navy); margin-top: 1.75rem;">6. Contact Us</h2>
+        <p>
+          If you have questions regarding this Privacy Policy or your account data, please contact us at <a href="/contact.html" style="color:var(--color-primary); font-weight:600;">our Contact Page</a> or email <code>privacy@tripsplit.app</code>.
+        </p>
+      </div>
+
+      <!-- Optional AdSense Slot -->
+      <div class="adsense-slot" aria-hidden="true">
+        <div class="adsense-label">Advertisement</div>
+        <div style="font-size: 0.85rem; color: var(--text-light); padding: 0.5rem 0;">
+          Transparent travel expense management.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 TripSplit. All rights reserved.</div>
+        <div>Peer-to-peer travel expense tracking utility. Not a bank or payment processor.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/navigation.js"></script>
+</body>
+</html>

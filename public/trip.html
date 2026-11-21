@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trip Details — TripSplit</title>
+  <meta name="description" content="View trip expenses, member balances, settlements, and pay using UPI on TripSplit.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="/index.html" class="brand-logo" aria-label="TripSplit Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#03045E"/>
+          <path d="M9 8 C9 8, 13 13, 16 16 C19 19, 23 24, 23 24" stroke="#90E0EF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M23 8 C23 8, 19 13, 16 16 C13 19, 9 24, 9 24" stroke="#00B4D8" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="3" fill="#CAF0F8" stroke="#03045E" stroke-width="1.5"/>
+        </svg>
+        <span>Trip<span class="brand-accent">Split</span></span>
+      </a>
+
+      <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="hamburger-box" aria-hidden="true">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </span>
+      </button>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="/dashboard.html" class="nav-link">&larr; Back to Dashboard</a></li>
+          <li><a href="/payments.html" class="nav-link">Payments</a></li>
+          <li><a href="/profile.html" class="nav-link">Profile</a></li>
+          <li class="nav-auth-group">
+            <button type="button" class="btn btn-outline btn-sm" id="trip-logout-btn">Log Out</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Loading State Indicator -->
+  <div class="loading-container" id="trip-loading" aria-live="polite">
+    <div class="spinner spinner-primary spinner-lg" aria-hidden="true"></div>
+    <div class="loading-text">Loading trip data and balances...</div>
+  </div>
+
+  <!-- Error State Container -->
+  <div class="container" id="trip-error" style="display: none; padding: 3rem 1.5rem;">
+    <div class="card" style="max-width: 600px; margin: 0 auto; text-align: center;">
+      <div class="card-body">
+        <div class="empty-state-icon" style="background-color: var(--color-danger-bg); color: var(--color-danger);">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3 id="trip-error-title">Unable to Load Trip</h3>
+        <p id="trip-error-message" style="margin-bottom: 1.5rem;">
+          You might not have permission to view this trip or it does not exist.
+        </p>
+        <a href="/dashboard.html" class="btn btn-primary">&larr; Return to Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authenticated Trip Main Content -->
+  <div id="trip-content" style="display: none;">
+    <!-- Trip Header Section -->
+    <section class="dashboard-header" style="background: linear-gradient(180deg, var(--color-very-light-cyan) 0%, rgba(248, 250, 252, 0.6) 100%);">
+      <div class="container">
+        <div class="dashboard-user-bar">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.35rem;">
+              <h1 id="trip-name-display" style="font-size: 1.85rem; color: var(--color-navy); margin: 0;">Goa Trip</h1>
+              <span id="trip-status-badge" class="badge badge-success">ACTIVE</span>
+              <span id="trip-role-badge" class="badge badge-navy">Owner</span>
+            </div>
+            <div class="trip-destination-pill" style="font-size: 0.95rem;">
+              <span aria-hidden="true">&#128205;</span> <span id="trip-destination-display">North Goa, India</span>
+              &bull; <span aria-hidden="true">&#128197;</span> <span id="trip-dates-display">Nov 20 – Nov 25, 2026</span>
+              &bull; <span>Creator: <strong id="trip-creator-display">Karan</strong></span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" id="open-add-expense-btn">
+              + Add Expense
+            </button>
+            <button type="button" class="btn btn-secondary" id="open-invite-modal-btn">
+              Invite Friends
+            </button>
+            <button type="button" class="btn btn-outline" id="leave-trip-btn">
+              Leave Trip
+            </button>
+            <button type="button" class="btn btn-outline" id="end-trip-btn" style="color: var(--color-danger); border-color: var(--color-danger);">
+              End Trip
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Navigation Tabs -->
+    <main class="dashboard-main">
+      <div class="container">
+        <div id="trip-alert-container"></div>
+
+        <nav class="tab-nav" role="tablist" aria-label="Trip navigation tabs">
+          <button type="button" class="tab-btn active" data-tab="overview" role="tab" aria-selected="true">
+            Overview
+          </button>
+          <button type="button" class="tab-btn" data-tab="expenses" role="tab" aria-selected="false">
+            Expenses <span class="badge badge-light" id="tab-expense-count">0</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="members" role="tab" aria-selected="false">
+            Members <span class="badge badge-light" id="tab-member-count">1</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="balances" role="tab" aria-selected="false">
+            Balances
+          </button>
+          <button type="button" class="tab-btn" data-tab="settlements" role="tab" aria-selected="false">
+            Settlements <span class="badge badge-warning" id="tab-settle-badge" style="display: none;">Pending</span>
+          </button>
+        </nav>
+
+        <!-- ===================================================================
+             TAB 1: OVERVIEW
+             =================================================================== -->
+        <section id="tab-overview" class="tab-pane active" role="tabpanel">
+          <!-- Stats Summary -->
+          <div class="stats-grid">
+            <div class="stat-card stat-navy">
+              <div class="stat-label">Total Trip Expenses</div>
+              <div class="stat-value" id="overview-total-expenses">₹0.00</div>
+              <div class="stat-hint">Total spent across all members</div>
+            </div>
+            <div class="stat-card stat-info">
+              <div class="stat-label">I Paid</div>
+              <div class="stat-value" id="overview-my-paid">₹0.00</div>
+              <div class="stat-hint">Amount you covered out of pocket</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">My Share</div>
+              <div class="stat-value" id="overview-my-share">₹0.00</div>
+              <div class="stat-hint">Your share of group expenses</div>
+            </div>
+            <div class="stat-card" id="overview-net-card">
+              <div class="stat-label">My Net Position</div>
+              <div class="stat-value" id="overview-my-net">₹0.00</div>
+              <div class="stat-hint" id="overview-net-hint">Settled balance</div>
+            </div>
+          </div>
+
+          <!-- Quick Overview Sections -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+            <!-- Left: Recent Expenses -->
+            <div class="card">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.15rem; margin: 0;">Recent Expenses</h3>
+                <button type="button" class="btn btn-outline btn-sm switch-to-tab" data-target="expenses">View All</button>
+              </div>
+              <div class="card-body" style="padding: 1rem;">
+                <div id="overview-recent-expenses" class="expense-feed"></div>
+              </div>
+            </div>
+
+            <!-- Right: Settlements & Actions -->
+            <div class="card">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.15rem; margin: 0;">Settlement Summary</h3>
+                <button type="button" class="btn btn-outline btn-sm switch-to-tab" data-target="settlements">Settle Now</button>
+              </div>
+              <div class="card-body">
+                <div id="overview-settlement-preview">
+                  <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Min-Cash-Flow engine minimizes the number of peer-to-peer transfers needed to settle this trip.
+                  </p>
+                  <button type="button" class="btn btn-primary btn-block switch-to-tab" data-target="settlements">
+                    View Optimized Settlements
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 2: EXPENSES
+             =================================================================== -->
+        <section id="tab-expenses" class="tab-pane" role="tabpanel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <h2 style="font-size: 1.35rem; color: var(--color-navy); margin: 0;">Expense Ledger</h2>
+            <button type="button" class="btn btn-primary" id="expenses-add-btn">+ Add Expense</button>
+          </div>
+
+          <div id="expenses-list" class="expense-feed"></div>
+          <div id="expenses-empty" class="empty-state" style="display: none;">
+            <div class="empty-state-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </div>
+            <h3>No Expenses Recorded Yet</h3>
+            <p>Track accommodation, meals, transport, and activities by clicking below.</p>
+            <button type="button" class="btn btn-primary" id="empty-add-expense-btn">+ Add First Expense</button>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 3: MEMBERS
+             =================================================================== -->
+        <section id="tab-members" class="tab-pane" role="tabpanel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h2 style="font-size: 1.35rem; color: var(--color-navy); margin: 0;">Trip Members</h2>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Active members who participate in group expenses and settlements.</p>
+            </div>
+            <button type="button" class="btn btn-secondary" id="members-invite-btn">+ Invite Friend</button>
+          </div>
+
+          <div class="data-table-container">
+            <table class="data-table" aria-label="Trip Members Table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>User Code</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Joined Date</th>
+                  <th>Linked UPI</th>
+                </tr>
+              </thead>
+              <tbody id="members-table-body"></tbody>
+            </table>
+          </div>
+
+          <!-- Pending Invitations for this Trip -->
+          <div id="trip-invitations-container" style="margin-top: 2rem; display: none;">
+            <h3 style="font-size: 1.15rem; color: var(--color-navy); margin-bottom: 0.75rem;">Sent Invitations</h3>
+            <div id="trip-invitations-list" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 4: BALANCES
+             =================================================================== -->
+        <section id="tab-balances" class="tab-pane" role="tabpanel">
+          <div style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.35rem; color: var(--color-navy); margin-bottom: 0.35rem;">Individual Balances</h2>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">
+              Calculated using integer-precision formula: <strong>Net Balance = Total Paid - Total Share</strong>.
+              Positive values indicate money to receive; negative values indicate money owed.
+            </p>
+          </div>
+
+          <div class="data-table-container">
+            <table class="data-table" aria-label="Trip Balances Table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Total Paid (₹)</th>
+                  <th>Total Share (₹)</th>
+                  <th>Net Balance (₹)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="balances-table-body"></tbody>
+            </table>
+          </div>
+
+          <div class="card" style="padding: 1rem 1.25rem; background-color: var(--color-surface-alt); border-left: 4px solid var(--color-cyan);">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              <strong>Mathematical Invariant:</strong> The sum of all member net balances in this trip strictly equals
+              <strong id="balances-sum-check" style="color: var(--color-navy);">₹0.00</strong> (0 paise).
+              Debt equals credit across all group transactions.
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 5: SETTLEMENTS
+             =================================================================== -->
+        <section id="tab-settlements" class="tab-pane" role="tabpanel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h2 style="font-size: 1.35rem; color: var(--color-navy); margin: 0;">Optimized Settlements</h2>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+                Calculated using the <strong>Min-Cash-Flow algorithm</strong> to minimize the number of payment transfers.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline" id="recalculate-settlements-btn">
+              &#8635; Recalculate Settlements
+            </button>
+          </div>
+
+          <!-- Incoming Payment Claims for User to Confirm -->
+          <div id="incoming-claims-container" style="display: none; margin-bottom: 2rem;">
+            <div class="card" style="border: 2px solid var(--color-cyan); background-color: var(--color-very-light-cyan);">
+              <div class="card-header" style="background: none; border-bottom: 1px solid var(--color-light-cyan);">
+                <h3 style="font-size: 1.1rem; color: var(--color-navy); margin: 0;">
+                  Incoming Payment Claims Awaiting Your Confirmation
+                </h3>
+              </div>
+              <div class="card-body" id="incoming-claims-list" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+            </div>
+          </div>
+
+          <!-- Settlements List -->
+          <div id="settlements-list"></div>
+          <div id="settlements-empty" class="empty-state" style="display: none;">
+            <div class="empty-state-icon" style="background-color: var(--color-success-bg); color: var(--color-success);">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3>All Settled Up!</h3>
+            <p>Everyone's net balance is currently ₹0.00. No outstanding payments are owed between trip members.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 1: ADD / EDIT EXPENSE
+       ========================================================================= -->
+  <div class="modal-backdrop" id="expense-modal" role="dialog" aria-modal="true" aria-labelledby="expense-modal-title">
+    <div class="modal-box modal-lg">
+      <button type="button" class="modal-close" id="close-expense-modal-btn" aria-label="Close dialog">&times;</button>
+      <h2 id="expense-modal-title" style="font-size: 1.35rem; color: var(--color-navy); margin-bottom: 0.5rem;">Add New Expense</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Enter expense details and select how the bill should be split between participants.
+      </p>
+
+      <div id="expense-modal-alert"></div>
+
+      <form id="expense-form" novalidate>
+        <input type="hidden" id="expense-edit-id">
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="expense-title" class="form-label required">Expense Title</label>
+            <input type="text" id="expense-title" class="form-input" placeholder="e.g. Hotel Stay, Dinner, Fuel" required maxlength="100">
+          </div>
+          <div class="form-group">
+            <label for="expense-amount" class="form-label required">Total Amount (₹)</label>
+            <input type="number" id="expense-amount" class="form-input" placeholder="5000" step="0.01" min="0.01" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="expense-category" class="form-label">Category</label>
+            <select id="expense-category" class="form-input">
+              <option value="Accommodation">Accommodation</option>
+              <option value="Food">Food & Dining</option>
+              <option value="Transport">Transport</option>
+              <option value="Fuel">Fuel</option>
+              <option value="Activities">Activities</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Tickets">Tickets & Entry</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="expense-paid-by" class="form-label required">Paid By</label>
+            <select id="expense-paid-by" class="form-input" required></select>
+          </div>
+          <div class="form-group">
+            <label for="expense-date" class="form-label">Date</label>
+            <input type="date" id="expense-date" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Split Method</label>
+          <div style="display: flex; gap: 1rem; margin-bottom: 0.75rem;">
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="radio" name="splitType" value="EQUAL" checked id="split-type-equal">
+              <span><strong>Equal Split</strong> (Split equally)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="radio" name="splitType" value="EXACT" id="split-type-exact">
+              <span><strong>Exact Amounts</strong> (Specify ₹ each)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="radio" name="splitType" value="PERCENTAGE" id="split-type-pct">
+              <span><strong>Percentages</strong> (Specify % each)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Select Participants</label>
+          <div id="participants-selection-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 220px; overflow-y: auto; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--color-surface-alt);"></div>
+          <div id="split-breakdown-preview" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted);"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="expense-description" class="form-label">Notes (Optional)</label>
+          <input type="text" id="expense-description" class="form-input" placeholder="Bill reference, receipt notes..." maxlength="200">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-outline" id="cancel-expense-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-expense-btn">Save Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 2: INVITE MEMBERS
+       ========================================================================= -->
+  <div class="modal-backdrop" id="invite-modal" role="dialog" aria-modal="true" aria-labelledby="invite-modal-title">
+    <div class="modal-box">
+      <button type="button" class="modal-close" id="close-invite-modal-btn" aria-label="Close dialog">&times;</button>
+      <h2 id="invite-modal-title" style="font-size: 1.35rem; color: var(--color-navy); margin-bottom: 0.5rem;">Invite a Friend</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Invite friends using their registered email or their unique 6-character User Code.
+      </p>
+
+      <div id="invite-modal-alert"></div>
+
+      <form id="invite-form" novalidate>
+        <div class="form-group">
+          <label class="form-label required">Invite By</label>
+          <div style="display: flex; gap: 1.5rem; margin-bottom: 0.75rem;">
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="radio" name="inviteTargetType" value="userCode" checked id="invite-by-code">
+              <span>User Code (e.g. TS-ABC123)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+              <input type="radio" name="inviteTargetType" value="email" id="invite-by-email">
+              <span>Email Address</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" id="usercode-input-group">
+          <label for="invite-usercode" class="form-label required">Friend's User Code</label>
+          <input type="text" id="invite-usercode" class="form-input" placeholder="TS-XXXXXX" maxlength="12">
+          <span class="form-hint">Ask your friend for their User Code displayed on their dashboard.</span>
+        </div>
+
+        <div class="form-group" id="email-input-group" style="display: none;">
+          <label for="invite-email" class="form-label required">Friend's Email Address</label>
+          <input type="email" id="invite-email" class="form-input" placeholder="friend@example.com">
+          <span class="form-hint">They will see this invitation when they log in to TripSplit.</span>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-outline" id="cancel-invite-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submit-invite-btn">Send Invitation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 3: UPI PAYMENT & "I PAID" FLOW
+       ========================================================================= -->
+  <div class="modal-backdrop" id="upi-modal" role="dialog" aria-modal="true" aria-labelledby="upi-modal-title">
+    <div class="modal-box modal-lg">
+      <button type="button" class="modal-close" id="close-upi-modal-btn" aria-label="Close dialog">&times;</button>
+      <h2 id="upi-modal-title" style="font-size: 1.35rem; color: var(--color-navy); margin-bottom: 0.35rem;">Pay via UPI</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+        TripSplit facilitates peer-to-peer settlement. Open in your UPI app or scan the QR code to transfer directly to the payee's bank.
+      </p>
+
+      <div class="upi-payment-box">
+        <div style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">
+          Pay To
+        </div>
+        <div style="font-size: 1.25rem; font-weight: 700; color: var(--color-navy);" id="upi-payee-name">
+          Receiver Name
+        </div>
+        <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-primary); margin: 0.5rem 0;" id="upi-amount-display">
+          ₹1,000.00
+        </div>
+        <div style="font-size: 0.9rem; color: var(--text-muted);" id="upi-vpa-display">
+          UPI ID: <strong id="upi-payee-vpa">receiver@bank</strong>
+        </div>
+
+        <!-- Rendered QR Code -->
+        <div class="upi-qr-wrapper" id="upi-qr-container"></div>
+
+        <div class="upi-action-grid">
+          <a href="#" class="btn btn-primary btn-block" id="upi-deep-link-btn" target="_blank" rel="noopener">
+            Open in UPI App
+          </a>
+          <button type="button" class="btn btn-secondary btn-block" id="copy-upi-btn">
+            Copy UPI ID
+          </button>
+        </div>
+      </div>
+
+      <!-- Notice & Disclaimer -->
+      <div style="background-color: var(--color-warning-bg); border: 1px solid var(--color-warning-border); padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        <strong>Notice:</strong> Opening your UPI app or scanning the QR code does not automatically complete the settlement in TripSplit. After making the external payment, click <strong>"I Paid"</strong> below and enter the transaction reference (UTR) provided by your bank.
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-outline" id="close-upi-btn">Cancel</button>
+        <button type="button" class="btn btn-navy" id="open-i-paid-btn">I Paid &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 4: "I PAID" UTR SUBMISSION
+       ========================================================================= -->
+  <div class="modal-backdrop" id="ipaid-modal" role="dialog" aria-modal="true" aria-labelledby="ipaid-modal-title">
+    <div class="modal-box">
+      <button type="button" class="modal-close" id="close-ipaid-modal-btn" aria-label="Close dialog">&times;</button>
+      <h2 id="ipaid-modal-title" style="font-size: 1.35rem; color: var(--color-navy); margin-bottom: 0.5rem;">Confirm UPI Payment Submission</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Submit the 12-digit UTR or Transaction Reference number from your payment receipt so the receiver can verify it.
+      </p>
+
+      <div id="ipaid-modal-alert"></div>
+
+      <form id="ipaid-form" novalidate>
+        <input type="hidden" id="ipaid-settlement-id">
+
+        <div class="form-group">
+          <label for="ipaid-utr" class="form-label required">UPI Transaction Reference (UTR / RRN)</label>
+          <input
+            type="text"
+            id="ipaid-utr"
+            class="form-input"
+            placeholder="e.g. 412345678901"
+            required
+            maxlength="40"
+          >
+          <span class="form-hint">Found in Google Pay, PhonePe, Paytm, or your banking app's payment receipt.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="ipaid-notes" class="form-label">Payment Note (Optional)</label>
+          <input
+            type="text"
+            id="ipaid-notes"
+            class="form-input"
+            placeholder="e.g. Paid via PhonePe at 8:30 PM"
+            maxlength="150"
+          >
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-outline" id="cancel-ipaid-btn">Back</button>
+          <button type="submit" class="btn btn-primary" id="submit-ipaid-btn">Submit Payment Claim</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 5: CONFIRM DIALOG (Delete, Leave, End, Confirm Payment)
+       ========================================================================= -->
+  <div class="modal-backdrop" id="generic-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+    <div class="modal-box">
+      <h3 id="confirm-modal-title" style="font-size: 1.25rem; color: var(--color-navy); margin-bottom: 0.75rem;">Confirm Action</h3>
+      <p id="confirm-modal-message" style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Are you sure you want to proceed?
+      </p>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-outline" id="confirm-modal-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirm-modal-ok-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 TripSplit. All rights reserved.</div>
+        <div>Peer-to-peer travel expense tracking utility. Not a bank or payment processor.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module" src="/js/trip.js"></script>
+</body>
+</html>

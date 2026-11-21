@@ -1,0 +1,132 @@
+/* ==========================================================================
+   Auth Page Layout (Login & Register)
+   ========================================================================== */
+.auth-page {
+  min-height: calc(100vh - var(--header-height) - 150px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: radial-gradient(circle at top right, var(--color-very-light-cyan) 0%, var(--color-surface-alt) 70%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  padding: 2.5rem 2.25rem;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.auth-footer-links {
+  text-align: center;
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.auth-footer-links a {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.auth-footer-links a:hover {
+  color: var(--color-navy);
+}
+
+.auth-separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: var(--text-light);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.auth-separator::before,
+.auth-separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.auth-separator:not(:empty)::before {
+  margin-right: 0.75em;
+}
+
+.auth-separator:not(:empty)::after {
+  margin-left: 0.75em;
+}
+
+/* ==========================================================================
+   Profile Page Layout
+   ========================================================================== */
+.profile-page {
+  padding: 3rem 0 5rem;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.profile-card-user {
+  text-align: center;
+  padding: 2.5rem 1.75rem;
+}
+
+.profile-avatar-circle {
+  width: 80px;
+  height: 80px;
+  background-color: var(--color-very-light-cyan);
+  color: var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 2rem;
+  font-weight: 700;
+  border: 3px solid var(--color-light-cyan);
+}
+
+.profile-card-user h2 {
+  font-size: 1.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.profile-card-user .profile-email {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.readonly-field {
+  background-color: #F8FAFC !important;
+  color: #64748B !important;
+  cursor: not-allowed;
+  border-style: dashed !important;
+}

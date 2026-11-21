@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frequently Asked Questions — TripSplit</title>
+  <meta name="description" content="Find answers to common questions about TripSplit account security, expense splitting, and UPI settlement workflows.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="/index.html" class="brand-logo" aria-label="TripSplit Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#03045E"/>
+          <path d="M9 8 C9 8, 13 13, 16 16 C19 19, 23 24, 23 24" stroke="#90E0EF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M23 8 C23 8, 19 13, 16 16 C13 19, 9 24, 9 24" stroke="#00B4D8" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="3" fill="#CAF0F8" stroke="#03045E" stroke-width="1.5"/>
+        </svg>
+        <span>Trip<span class="brand-accent">Split</span></span>
+      </a>
+
+      <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="hamburger-box" aria-hidden="true">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </span>
+      </button>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="/index.html" class="nav-link">Home</a></li>
+          <li><a href="/about.html" class="nav-link">About</a></li>
+          <li><a href="/faq.html" class="nav-link active">FAQ</a></li>
+          <li class="nav-auth-group" id="nav-auth-container">
+            <a href="/login.html" class="nav-link" id="nav-login">Login</a>
+            <a href="/register.html" class="btn btn-primary btn-sm" id="nav-register">Register</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content" class="section">
+    <div class="container" style="max-width: 860px;">
+      <div style="margin-bottom: 2.5rem; text-align: center;">
+        <span class="badge badge-navy">Help Center</span>
+        <h1 style="margin-top: 0.75rem; margin-bottom: 0.75rem;">Frequently Asked Questions</h1>
+        <p style="font-size: 1.15rem; color: var(--text-muted);">
+          Everything you need to know about TripSplit's foundation, features, and settlements.
+        </p>
+      </div>
+
+      <div style="display: grid; gap: 1.5rem; margin-bottom: 3.5rem;">
+        <div class="card">
+          <div class="card-body">
+            <h3>What is TripSplit?</h3>
+            <p>
+              TripSplit is a specialized travel expense-sharing application built for groups of friends. It tracks shared expenses (accommodations, dining, fuel, tickets), calculates who owes whom, and simplifies settlements using UPI payments.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h3>Does TripSplit charge transaction fees or hold funds?</h3>
+            <p>
+              No. TripSplit never touches your money or operates as a financial intermediary. All payments are executed peer-to-peer using your installed UPI apps (Google Pay, PhonePe, Paytm, BHIM) directly to the recipient's verified UPI ID.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h3>What features are available right now in Phase 1?</h3>
+            <p>
+              Phase 1 implements the complete core technical foundation: real Firebase Email/Password authentication, persistent sessions, password reset flows, secure token verification middleware on Node.js/Express, and Firestore user profiles with unique User Codes and UPI IDs.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h3>When will trip creation and expense splitting be live?</h3>
+            <p>
+              Trip management, friend invitations, split algorithms, and real-time ledger updates are scheduled for <strong>Phase 2</strong>. Phase 3 will introduce automated UPI deep linking and settlement confirmations.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h3>How do I reset my account password?</h3>
+            <p>
+              Click "Forgot password?" on the login page, enter your registered email address, and an official password reset link will be sent to your inbox by Firebase Authentication.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h3>Need support or have feedback?</h3>
+            <p>
+              TripSplit is an open project in active development. For technical inquiries, bug reports, or setup questions, please consult the project repository documentation.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="/index.html" class="brand-logo" aria-label="TripSplit Home">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect width="32" height="32" rx="8" fill="#0077B6"/>
+              <path d="M9 8 C9 8, 13 13, 16 16 C19 19, 23 24, 23 24" stroke="#CAF0F8" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M23 8 C23 8, 19 13, 16 16 C13 19, 9 24, 9 24" stroke="#00B4D8" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="16" cy="16" r="3" fill="#FFFFFF" stroke="#03045E" stroke-width="1.5"/>
+            </svg>
+            <span>Trip<span class="brand-accent">Split</span></span>
+          </a>
+          <p>Share Expenses. Settle Simply. Built for road trips, vacations, and group adventures.</p>
+        </div>
+
+        <div>
+          <h3 class="footer-heading">Navigation</h3>
+          <ul class="footer-links">
+            <li><a href="/index.html">Home</a></li>
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/faq.html">FAQ</a></li>
+            <li><a href="/dashboard.html">Dashboard</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="footer-heading">Account</h3>
+          <ul class="footer-links">
+            <li><a href="/login.html">Login</a></li>
+            <li><a href="/register.html">Register</a></li>
+            <li><a href="/profile.html">Profile</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="footer-heading">Legal & Support</h3>
+          <ul class="footer-links">
+            <li><a href="/privacy.html">Privacy Policy</a></li>
+            <li><a href="/terms.html">Terms & Conditions</a></li>
+            <li><a href="/contact.html">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="footer-heading">Security & Privacy</h3>
+          <p style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 0.75rem;">
+            Firebase-authenticated identity protection and encrypted transmission.
+          </p>
+          <span class="badge badge-cyan">Full Production Ready</span>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 TripSplit. All rights reserved.</div>
+        <div>Peer-to-peer travel expense tracking utility.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/navigation.js"></script>
+</body>
+</html>

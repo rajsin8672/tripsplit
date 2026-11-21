@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users collection:
+    // Any authenticated user can read public profile fields (for invitation and ledger display)
+    // Only the authenticated account owner can write to their profile
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    // Server-managed financial and group collections:
+    // Direct client-side write access is strictly denied to ensure all financial operations,
+    // integer paise math, authorization, and split invariants are enforced by the backend Express server.
+    match /trips/{tripId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    match /trip_members/{memberId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    match /invitations/{invitationId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    match /expense_splits/{splitId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    match /settlements/{settlementId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+  }
+}

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — TripSplit</title>
+  <meta name="description" content="Sign in to your TripSplit account to manage your trips, track group expenses, and settle balances.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="/index.html" class="brand-logo" aria-label="TripSplit Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#03045E"/>
+          <path d="M9 8 C9 8, 13 13, 16 16 C19 19, 23 24, 23 24" stroke="#90E0EF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M23 8 C23 8, 19 13, 16 16 C13 19, 9 24, 9 24" stroke="#00B4D8" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="3" fill="#CAF0F8" stroke="#03045E" stroke-width="1.5"/>
+        </svg>
+        <span>Trip<span class="brand-accent">Split</span></span>
+      </a>
+
+      <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="hamburger-box" aria-hidden="true">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </span>
+      </button>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="/index.html" class="nav-link">Home</a></li>
+          <li><a href="/about.html" class="nav-link">About</a></li>
+          <li><a href="/faq.html" class="nav-link">FAQ</a></li>
+          <li class="nav-auth-group" id="nav-auth-container">
+            <a href="/login.html" class="nav-link active" id="nav-login">Login</a>
+            <a href="/register.html" class="btn btn-primary btn-sm" id="nav-register">Register</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content" class="auth-page">
+    <div class="auth-card">
+      <div class="auth-header">
+        <span class="badge badge-cyan" style="margin-bottom: 0.75rem;">Welcome Back</span>
+        <h1>Sign in to TripSplit</h1>
+        <p>Access your trips and manage group settlements</p>
+      </div>
+
+      <div id="login-alert" aria-live="polite"></div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="login-email" class="form-label required">Email address</label>
+          <input
+            type="email"
+            id="login-email"
+            class="form-input"
+            placeholder="name@example.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.35rem;">
+            <label for="login-password" class="form-label required" style="margin-bottom: 0;">Password</label>
+            <a href="#reset-password" id="forgot-password-link" style="font-size: 0.8rem;">Forgot password?</a>
+          </div>
+          <div class="input-password-wrapper">
+            <input
+              type="password"
+              id="login-password"
+              class="form-input"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+            <button type="button" class="password-toggle-btn" id="toggle-login-password" aria-label="Show password">
+              Show
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="login-submit-btn" style="margin-top: 1.5rem;">
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-footer-links">
+        Don't have an account? <a href="/register.html">Create an account</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Password Reset Modal -->
+  <div class="modal-backdrop" id="reset-modal" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+    <div class="modal-box">
+      <button type="button" class="modal-close" id="close-reset-modal" aria-label="Close dialog">&times;</button>
+      <h2 id="reset-modal-title" style="font-size: 1.35rem; margin-bottom: 0.5rem;">Reset Your Password</h2>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+        Enter your registered email and we'll send you an official password reset link.
+      </p>
+
+      <div id="reset-alert" aria-live="polite"></div>
+
+      <form id="reset-form" novalidate>
+        <div class="form-group">
+          <label for="reset-email" class="form-label required">Email address</label>
+          <input type="email" id="reset-email" class="form-input" placeholder="name@example.com" required>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="submit" class="btn btn-primary" id="reset-submit-btn">Send Reset Link</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 TripSplit. All rights reserved.</div>
+        <div>Peer-to-peer travel expense tracking utility.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module" src="/js/login.js"></script>
+</body>
+</html>

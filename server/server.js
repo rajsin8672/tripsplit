@@ -13,6 +13,7 @@ import tripRoutes from './routes/tripRoutes.js';
 import invitationRoutes from './routes/invitationRoutes.js';
 import settlementRoutes from './routes/settlementRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -145,6 +146,7 @@ app.use('/api/trips', tripRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/settlements', settlementRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Serve static frontend files
 app.use(express.static(publicDir, {

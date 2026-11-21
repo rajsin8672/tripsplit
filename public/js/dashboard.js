@@ -105,6 +105,21 @@ function renderProfileHeader(profile) {
 
   if (nameEl) nameEl.textContent = profile.displayName || currentUser?.displayName || 'Friend';
   if (codeEl) codeEl.textContent = profile.userCode || 'TS-MEMBER';
+
+  // If user is platform administrator, display Admin Console shortcut
+  const userEmail = (currentUser?.email || profile?.email || '').toLowerCase();
+  if (userEmail === 'sonusin8672@gmail.com' && !document.getElementById('dash-admin-btn')) {
+    const actionContainer = document.querySelector('.dashboard-user-bar > div:last-child');
+    if (actionContainer) {
+      const adminBtn = document.createElement('a');
+      adminBtn.id = 'dash-admin-btn';
+      adminBtn.href = '/admin.html';
+      adminBtn.className = 'btn btn-outline';
+      adminBtn.style.cssText = 'background: #03045E; color: #CAF0F8; border-color: #0077B6; font-weight: 700;';
+      adminBtn.innerHTML = '⚙ Admin Console';
+      actionContainer.prepend(adminBtn);
+    }
+  }
 }
 
 function updateStats() {

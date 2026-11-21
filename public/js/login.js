@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearAlert(alertContainer);
+      window.__TRIPSPLIT_AUTH_IN_PROGRESS__ = true;
 
       const email = emailInput.value.trim();
       const password = passwordInput.value;
@@ -83,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
           window.location.href = safeRedirect;
         }, 600);
       } catch (err) {
+        window.__TRIPSPLIT_AUTH_IN_PROGRESS__ = false;
         console.error('Login failed:', err);
         const friendlyMessage = getFriendlyAuthErrorMessage(err.code || '') || err.message;
         showAlert(alertContainer, friendlyMessage, 'danger');

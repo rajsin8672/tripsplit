@@ -482,15 +482,43 @@
           UPI ID: <strong id="upi-payee-vpa">receiver@bank</strong>
         </div>
 
+        <!-- Custom / Manual Receiver UPI ID Input -->
+        <div id="upi-manual-box" style="margin: 0.85rem auto; max-width: 380px; text-align: left;">
+          <label for="upi-manual-input" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
+            Receiver UPI ID / VPA:
+          </label>
+          <div style="display: flex; gap: 0.4rem;">
+            <input type="text" id="upi-manual-input" class="form-input" placeholder="e.g. 9876543210@paytm or name@okaxis" style="font-family: var(--font-mono); font-size: 0.88rem; padding: 0.45rem 0.65rem;" />
+            <button type="button" class="btn btn-secondary btn-sm" id="upi-apply-vpa-btn">Use</button>
+          </div>
+          <div id="upi-vpa-error" style="color: var(--color-danger); font-size: 0.78rem; margin-top: 0.25rem; display: none;"></div>
+        </div>
+
+        <!-- Mobile / Tablet Direct UPI App Launcher -->
+        <div id="upi-mobile-launch-section" style="margin: 1rem auto 0.5rem; max-width: 420px;">
+          <a href="#" class="btn btn-primary btn-block btn-lg" id="upi-deep-link-btn" style="font-size: 1rem; font-weight: 700; padding: 0.85rem 1rem; box-shadow: 0 4px 14px rgba(0, 119, 182, 0.28);">
+            <svg style="width: 20px; height: 20px; vertical-align: middle; margin-right: 6px;" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            Pay with Any UPI App (GPay, PhonePe, Paytm, BHIM)
+          </a>
+
+          <!-- Quick specific app options -->
+          <div style="display: flex; gap: 0.4rem; justify-content: center; margin-top: 0.6rem; flex-wrap: wrap;">
+            <a href="#" class="btn btn-sm btn-secondary upi-app-link" id="upi-app-gpay" style="font-size: 0.8rem; padding: 0.35rem 0.7rem;">Google Pay</a>
+            <a href="#" class="btn btn-sm btn-secondary upi-app-link" id="upi-app-phonepe" style="font-size: 0.8rem; padding: 0.35rem 0.7rem;">PhonePe</a>
+            <a href="#" class="btn btn-sm btn-secondary upi-app-link" id="upi-app-paytm" style="font-size: 0.8rem; padding: 0.35rem 0.7rem;">Paytm</a>
+            <a href="#" class="btn btn-sm btn-secondary upi-app-link" id="upi-app-bhim" style="font-size: 0.8rem; padding: 0.35rem 0.7rem;">BHIM</a>
+          </div>
+        </div>
+
         <!-- Rendered QR Code -->
         <div class="upi-qr-wrapper" id="upi-qr-container"></div>
 
         <div class="upi-action-grid">
-          <a href="#" class="btn btn-primary btn-block" id="upi-deep-link-btn" target="_blank" rel="noopener">
-            Open in UPI App
-          </a>
           <button type="button" class="btn btn-secondary btn-block" id="copy-upi-btn">
             Copy UPI ID
+          </button>
+          <button type="button" class="btn btn-secondary btn-block" id="copy-amount-btn">
+            Copy Amount
           </button>
         </div>
       </div>

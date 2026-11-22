@@ -10,24 +10,55 @@ export function setupNavigation() {
   const navLinks = document.getElementById('nav-links');
 
   if (mobileToggle && navLinks) {
+    if (mobileToggle.dataset.navBound === 'true') return;
+    mobileToggle.dataset.navBound = 'true';
+
+    // Ensure backdrop exists
+    let backdrop = document.getElementById('nav-backdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'nav-backdrop';
+      backdrop.className = 'nav-backdrop';
+      document.body.appendChild(backdrop);
+    }
+
     const toggleMenu = (openState) => {
       const willOpen = typeof openState === 'boolean' ? openState : !navLinks.classList.contains('is-open');
       if (willOpen) {
         navLinks.classList.add('is-open');
         mobileToggle.classList.add('is-active');
         mobileToggle.setAttribute('aria-expanded', 'true');
+        backdrop.classList.add('is-active');
+        document.body.style.overflow = 'hidden';
       } else {
         navLinks.classList.remove('is-open');
         mobileToggle.classList.remove('is-active');
         mobileToggle.setAttribute('aria-expanded', 'false');
+        backdrop.classList.remove('is-active');
+        document.body.style.overflow = '';
       }
     };
 
-    mobileToggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    let isToggling = false;
+    const handleToggle = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (isToggling) return;
+      isToggling = true;
       toggleMenu();
-    });
+      setTimeout(() => { isToggling = false; }, 250);
+    };
+
+    mobileToggle.addEventListener('click', handleToggle);
+    mobileToggle.addEventListener('touchend', handleToggle, { passive: false });
+
+    backdrop.addEventListener('click', () => toggleMenu(false));
+    backdrop.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      toggleMenu(false);
+    }, { passive: false });
 
     // Close menu when tapping any nav link or button inside nav
     navLinks.addEventListener('click', (e) => {
@@ -38,11 +69,13 @@ export function setupNavigation() {
     });
 
     // Close menu when tapping outside
-    document.addEventListener('click', (e) => {
+    const handleOutside = (e) => {
       if (navLinks.classList.contains('is-open') && !navLinks.contains(e.target) && !mobileToggle.contains(e.target)) {
         toggleMenu(false);
       }
-    });
+    };
+    document.addEventListener('click', handleOutside);
+    document.addEventListener('touchend', handleOutside, { passive: true });
 
     // Close on Escape key press
     document.addEventListener('keydown', (e) => {

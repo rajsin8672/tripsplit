@@ -627,52 +627,190 @@ function openUpiModal(settlement) {
   const payeeNameEl = document.getElementById('upi-payee-name');
   const amountEl = document.getElementById('upi-amount-display');
   const vpaEl = document.getElementById('upi-payee-vpa');
+  const manualInput = document.getElementById('upi-manual-input');
+  const applyVpaBtn = document.getElementById('upi-apply-vpa-btn');
+  const vpaError = document.getElementById('upi-vpa-error');
   const qrContainer = document.getElementById('upi-qr-container');
   const deepLinkBtn = document.getElementById('upi-deep-link-btn');
   const copyUpiBtn = document.getElementById('copy-upi-btn');
+  const copyAmountBtn = document.getElementById('copy-amount-btn');
+  const gpayBtn = document.getElementById('upi-app-gpay');
+  const phonepeBtn = document.getElementById('upi-app-phonepe');
+  const paytmBtn = document.getElementById('upi-app-paytm');
+  const bhimBtn = document.getElementById('upi-app-bhim');
 
   const payeeName = settlement.toUserName || 'TripSplit Member';
-  const payeeVpa = settlement.toUserUpi || '';
+  let activeVpa = (settlement.toUserUpi || '').trim();
   const amountRupees = (settlement.amount / 100).toFixed(2);
+  const note = `TripSplit ${currentTrip?.name || 'Trip'} Settlement`;
 
   if (payeeNameEl) payeeNameEl.textContent = payeeName;
   if (amountEl) amountEl.textContent = `₹${amountRupees}`;
-  if (vpaEl) vpaEl.textContent = payeeVpa || 'Payee UPI ID not configured';
-
-  // Construct standard UPI payment URI
-  // upi://pay?pa=...&pn=...&am=...&cu=INR&tn=...
-  const note = `TripSplit ${currentTrip?.name || 'Trip'} Settlement`;
-  const upiUri = `upi://pay?pa=${encodeURIComponent(payeeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountRupees}&cu=INR&tn=${encodeURIComponent(note)}&tr=${encodeURIComponent(settlement.settlementId)}`;
-
-  if (deepLinkBtn) {
-    if (payeeVpa) {
-      deepLinkBtn.href = upiUri;
-      deepLinkBtn.style.display = 'inline-flex';
-    } else {
-      deepLinkBtn.style.display = 'none';
-    }
+  if (manualInput) manualInput.value = activeVpa;
+  if (vpaError) {
+    vpaError.textContent = '';
+    vpaError.style.display = 'none';
   }
 
-  // Generate QR code SVG
-  if (qrContainer) {
-    if (payeeVpa) {
-      qrContainer.innerHTML = generateQrSvg(upiUri, 220);
-    } else {
-      qrContainer.innerHTML = `
-        <div style="padding: 2rem; color: var(--color-danger); font-size: 0.9rem;">
-          Payee has not linked their UPI ID yet.<br>Please ask ${escapeHtml(payeeName)} to add their UPI ID in their Profile.
-        </div>
-      `;
+  function renderPaymentViews(vpa) {
+    const valid = Boolean(vpa && vpa.includes('@') && vpa.length >= 3 && vpa.length <= 100);
+    if (vpaEl) {
+      vpaEl.textContent = vpa || 'Payee UPI ID not configured';
+      vpaEl.style.color = valid ? 'inherit' : 'var(--color-danger)';
     }
-  }
 
-  if (copyUpiBtn) {
-    copyUpiBtn.onclick = () => {
-      if (payeeVpa) {
-        navigator.clipboard.writeText(payeeVpa);
-        copyUpiBtn.textContent = 'Copied!';
-        setTimeout(() => { copyUpiBtn.textContent = 'Copy UPI ID'; }, 2000);
+    if (valid) {
+      // Build standard & app-specific URIs
+      const encodedVpa = encodeURIComponent(vpa);
+      const encodedName = encodeURIComponent(payeeName);
+      const encodedNote = encodeURIComponent(note);
+      const encodedTr = encodeURIComponent(settlement.settlementId);
+
+      const genericUpiUri = `upi://pay?pa=${encodedVpa}&pn=${encodedName}&am=${amountRupees}&cu=INR&tn=${encodedNote}&tr=${encodedTr}`;
+      const phonepeUri = `phonepe://pay?pa=${encodedVpa}&pn=${encodedName}&am=${amountRupees}&cu=INR&tn=${encodedNote}&tr=${encodedTr}`;
+      const gpayUri = `tez://upi/pay?pa=${encodedVpa}&pn=${encodedName}&am=${amountRupees}&cu=INR&tn=${encodedNote}&tr=${encodedTr}`;
+      const paytmUri = `paytmmp://pay?pa=${encodedVpa}&pn=${encodedName}&am=${amountRupees}&cu=INR&tn=${encodedNote}&tr=${encodedTr}`;
+
+      const openAppIntent = (uri) => {
+        // Direct foreground window navigation triggers native UPI app intent on mobile/tablet
+        window.location.href = uri;
+      };
+
+      if (deepLinkBtn) {
+        deepLinkBtn.href = genericUpiUri;
+        deepLinkBtn.style.display = 'inline-flex';
+        deepLinkBtn.onclick = (e) => {
+          e.preventDefault();
+          openAppIntent(genericUpiUri);
+        };
       }
+
+      if (gpayBtn) {
+        gpayBtn.href = gpayUri;
+        gpayBtn.style.display = 'inline-flex';
+        gpayBtn.onclick = (e) => {
+          e.preventDefault();
+          openAppIntent(gpayUri);
+        };
+      }
+
+      if (phonepeBtn) {
+        phonepeBtn.href = phonepeUri;
+        phonepeBtn.style.display = 'inline-flex';
+        phonepeBtn.onclick = (e) => {
+          e.preventDefault();
+          openAppIntent(phonepeUri);
+        };
+      }
+
+      if (paytmBtn) {
+        paytmBtn.href = paytmUri;
+        paytmBtn.style.display = 'inline-flex';
+        paytmBtn.onclick = (e) => {
+          e.preventDefault();
+          openAppIntent(paytmUri);
+        };
+      }
+
+      if (bhimBtn) {
+        bhimBtn.href = genericUpiUri;
+        bhimBtn.style.display = 'inline-flex';
+        bhimBtn.onclick = (e) => {
+          e.preventDefault();
+          openAppIntent(genericUpiUri);
+        };
+      }
+
+      // Generate QR Code SVG
+      if (qrContainer) {
+        qrContainer.innerHTML = generateQrSvg(genericUpiUri, 220);
+      }
+
+      if (copyUpiBtn) {
+        copyUpiBtn.disabled = false;
+        copyUpiBtn.onclick = () => {
+          navigator.clipboard.writeText(vpa).then(() => {
+            copyUpiBtn.textContent = 'UPI Copied!';
+            setTimeout(() => { copyUpiBtn.textContent = 'Copy UPI ID'; }, 2000);
+          }).catch(() => {
+            copyUpiBtn.textContent = 'Copied!';
+            setTimeout(() => { copyUpiBtn.textContent = 'Copy UPI ID'; }, 2000);
+          });
+        };
+      }
+    } else {
+      // No valid VPA provided yet
+      if (deepLinkBtn) deepLinkBtn.style.display = 'none';
+      if (gpayBtn) gpayBtn.style.display = 'none';
+      if (phonepeBtn) phonepeBtn.style.display = 'none';
+      if (paytmBtn) paytmBtn.style.display = 'none';
+      if (bhimBtn) bhimBtn.style.display = 'none';
+
+      if (qrContainer) {
+        qrContainer.innerHTML = `
+          <div style="padding: 1.5rem; color: var(--color-danger); font-size: 0.9rem; text-align: center;">
+            UPI ID not found for ${escapeHtml(payeeName)}.<br>
+            Please enter their UPI ID above to pay directly via UPI app or QR code.
+          </div>
+        `;
+      }
+
+      if (copyUpiBtn) {
+        copyUpiBtn.disabled = true;
+      }
+    }
+  }
+
+  // Initial render with current VPA
+  renderPaymentViews(activeVpa);
+
+  // Manual UPI ID input handler
+  const handleApplyVpa = () => {
+    const entered = (manualInput?.value || '').trim();
+    if (!entered) {
+      if (vpaError) {
+        vpaError.textContent = 'Please enter a receiver UPI ID (e.g. mobile@paytm or name@okaxis).';
+        vpaError.style.display = 'block';
+      }
+      return;
+    }
+    if (!entered.includes('@') || entered.length < 3 || entered.length > 100) {
+      if (vpaError) {
+        vpaError.textContent = 'Invalid format. A valid UPI ID must include "@" (e.g. user@okhdfcbank).';
+        vpaError.style.display = 'block';
+      }
+      return;
+    }
+    if (vpaError) {
+      vpaError.textContent = '';
+      vpaError.style.display = 'none';
+    }
+    activeVpa = entered;
+    renderPaymentViews(activeVpa);
+  };
+
+  if (applyVpaBtn) {
+    applyVpaBtn.onclick = handleApplyVpa;
+  }
+  if (manualInput) {
+    manualInput.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleApplyVpa();
+      }
+    };
+  }
+
+  // Copy Amount button handler
+  if (copyAmountBtn) {
+    copyAmountBtn.onclick = () => {
+      navigator.clipboard.writeText(amountRupees).then(() => {
+        copyAmountBtn.textContent = 'Amount Copied!';
+        setTimeout(() => { copyAmountBtn.textContent = 'Copy Amount'; }, 2000);
+      }).catch(() => {
+        copyAmountBtn.textContent = 'Amount Copied!';
+        setTimeout(() => { copyAmountBtn.textContent = 'Copy Amount'; }, 2000);
+      });
     };
   }
 
@@ -1279,4 +1417,33 @@ function setupGlobalEvents() {
     });
   }
   if (confirmCancelBtn) confirmCancelBtn.addEventListener('click', closeConfirmModal);
+
+  // Close modals on clicking outside on modal backdrop or pressing Escape
+  const allTripModals = [
+    document.getElementById('expense-modal'),
+    document.getElementById('invite-modal'),
+    document.getElementById('upi-modal'),
+    document.getElementById('ipaid-modal'),
+    document.getElementById('generic-confirm-modal')
+  ];
+
+  allTripModals.forEach(m => {
+    if (m) {
+      m.addEventListener('click', (e) => {
+        if (e.target === m) {
+          m.classList.remove('is-active');
+        }
+      });
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      allTripModals.forEach(m => {
+        if (m && m.classList.contains('is-active')) {
+          m.classList.remove('is-active');
+        }
+      });
+    }
+  });
 }

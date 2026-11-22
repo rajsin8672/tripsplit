@@ -58,6 +58,10 @@ html, body {
   }
 
   /* Mobile Navigation Bar & Animated Hamburger */
+  .site-header {
+    z-index: 1000;
+  }
+
   .site-header nav {
     display: contents;
   }
@@ -69,6 +73,8 @@ html, body {
     margin-left: auto;
     width: 42px;
     height: 42px;
+    position: relative;
+    z-index: 1002;
     background-color: var(--color-very-light-cyan);
     border: 1.5px solid var(--color-light-cyan);
     border-radius: var(--radius-md);
@@ -77,6 +83,25 @@ html, body {
     transition: background-color var(--transition-fast), border-color var(--transition-fast);
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Backdrop overlay for mobile menu */
+  .nav-backdrop {
+    display: none;
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(3, 4, 94, 0.4);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 998;
+    touch-action: none;
+  }
+
+  .nav-backdrop.is-active {
+    display: block;
   }
 
   .mobile-menu-btn:hover,
@@ -142,7 +167,7 @@ html, body {
     visibility: hidden;
     transform: translateY(-10px);
     transition: opacity 220ms ease, transform 220ms ease, visibility 220ms ease;
-    z-index: 999;
+    z-index: 1001;
   }
 
   .nav-links.is-open {
@@ -345,6 +370,11 @@ html, body {
   .modal-box {
     padding: 1.75rem 1.25rem;
     border-radius: var(--radius-lg);
+  }
+
+  .upi-action-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
 
   /* Footer on Mobile */

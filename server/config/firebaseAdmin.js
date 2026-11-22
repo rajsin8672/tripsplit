@@ -21,17 +21,32 @@ try {
   let clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-  // 1. Support full JSON string in FIREBASE_SERVICE_ACCOUNT (common in Render/Heroku deployments)
+  // 1. Support full JSON string or base64 in FIREBASE_SERVICE_ACCOUNT (common in Render/Heroku deployments)
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     try {
-      const sa = typeof process.env.FIREBASE_SERVICE_ACCOUNT === 'string'
-        ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-        : process.env.FIREBASE_SERVICE_ACCOUNT;
+      let raw = process.env.FIREBASE_SERVICE_ACCOUNT;
+      if (typeof raw === 'string' && !raw.trim().startsWith('{')) {
+        // May be base64 encoded
+        raw = Buffer.from(raw.trim(), 'base64').toString('utf8');
+      }
+      const sa = typeof raw === 'string' ? JSON.parse(raw) : raw;
       if (sa.project_id) projectId = sa.project_id;
       if (sa.client_email) clientEmail = sa.client_email;
       if (sa.private_key) privateKey = sa.private_key;
     } catch (e) {
       console.warn('[FirebaseAdmin] Could not parse FIREBASE_SERVICE_ACCOUNT JSON:', e.message);
+    }
+  }
+
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+    try {
+      const decoded = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64.trim(), 'base64').toString('utf8');
+      const sa = JSON.parse(decoded);
+      if (sa.project_id) projectId = sa.project_id;
+      if (sa.client_email) clientEmail = sa.client_email;
+      if (sa.private_key) privateKey = sa.private_key;
+    } catch (e) {
+      console.warn('[FirebaseAdmin] Could not decode FIREBASE_SERVICE_ACCOUNT_BASE64:', e.message);
     }
   }
 

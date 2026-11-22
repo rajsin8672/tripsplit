@@ -6,6 +6,10 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class MemoryDocumentSnapshot {
   constructor(id, data, exists = true) {
@@ -234,6 +238,18 @@ export class MemoryFirestore {
         const parsed = JSON.parse(raw);
         for (const [coll, docs] of Object.entries(parsed)) {
           this.store[coll] = new Map(Object.entries(docs));
+        }
+      } else {
+        // Fallback to default seed if persistence file does not exist yet (e.g. on clean container redeploy)
+        const seedPath = path.resolve(__dirname, '../data/default-seed.json');
+        if (fs.existsSync(seedPath)) {
+          const raw = fs.readFileSync(seedPath, 'utf8');
+          const parsed = JSON.parse(raw);
+          for (const [coll, docs] of Object.entries(parsed)) {
+            this.store[coll] = new Map(Object.entries(docs));
+          }
+          this.saveToFile();
+          console.log('[MemoryFirestore] Initialized store from default-seed.json');
         }
       }
     } catch (e) {

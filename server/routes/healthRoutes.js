@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isConfigured, configError } from '../config/firebaseAdmin.js';
+import { isConfigured, configError, isMock } from '../config/firebaseAdmin.js';
 
 const router = Router();
 
@@ -13,7 +13,9 @@ router.get('/', (req, res) => {
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
       firebaseAdminConfigured: isConfigured,
-      firebaseStatus: isConfigured ? 'connected' : (configError || 'pending configuration')
+      firebaseStatus: isConfigured ? 'connected' : (configError || 'pending configuration'),
+      databaseMode: isMock ? 'local-ephemeral-mock' : 'cloud-firestore',
+      isRealFirestore: !isMock
     }
   });
 });

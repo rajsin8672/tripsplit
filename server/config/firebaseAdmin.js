@@ -1,4 +1,5 @@
 import admin from 'firebase-admin';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -16,9 +17,46 @@ let configError = null;
 let isMock = false;
 
 try {
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  let projectId = process.env.FIREBASE_PROJECT_ID;
+  let clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  // 1. Support full JSON string in FIREBASE_SERVICE_ACCOUNT (common in Render/Heroku deployments)
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    try {
+      const sa = typeof process.env.FIREBASE_SERVICE_ACCOUNT === 'string'
+        ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+        : process.env.FIREBASE_SERVICE_ACCOUNT;
+      if (sa.project_id) projectId = sa.project_id;
+      if (sa.client_email) clientEmail = sa.client_email;
+      if (sa.private_key) privateKey = sa.private_key;
+    } catch (e) {
+      console.warn('[FirebaseAdmin] Could not parse FIREBASE_SERVICE_ACCOUNT JSON:', e.message);
+    }
+  }
+
+  // 2. Auto-detect local service account key file if present in workspace root
+  const possibleKeyFiles = [
+    path.resolve(__dirname, '../../serviceAccountKey.json'),
+    path.resolve(__dirname, '../../firebase-service-account.json'),
+    path.resolve(__dirname, '../serviceAccountKey.json')
+  ];
+  for (const keyPath of possibleKeyFiles) {
+    if (fs.existsSync(keyPath)) {
+      try {
+        const sa = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
+        if (sa.project_id && sa.client_email && sa.private_key) {
+          projectId = sa.project_id;
+          clientEmail = sa.client_email;
+          privateKey = sa.private_key;
+          console.log(`[FirebaseAdmin] Loaded credentials from ${path.basename(keyPath)}`);
+          break;
+        }
+      } catch (err) {
+        console.warn(`[FirebaseAdmin] Error reading ${keyPath}:`, err.message);
+      }
+    }
+  }
 
   if (privateKey) {
     if (privateKey.startsWith('"') && privateKey.endsWith('"')) {

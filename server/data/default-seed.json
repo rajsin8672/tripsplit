@@ -1,0 +1,150 @@
+{
+  "users": {
+    "bIns1vEwKHPU5QhY74rDZiIKoln2": {
+      "uid": "bIns1vEwKHPU5QhY74rDZiIKoln2",
+      "email": "karansin8672@gmail.com",
+      "displayName": "TripSplit User",
+      "userCode": "TS-N7VYVU",
+      "upiId": "",
+      "createdAt": "2026-11-20T23:35:22.628Z",
+      "updatedAt": "2026-11-20T23:35:22.628Z"
+    },
+    "Jz34CdaoWST75nejWeagICJEUS33": {
+      "uid": "Jz34CdaoWST75nejWeagICJEUS33",
+      "email": "pilot_36089@testsplit.org",
+      "displayName": "TripSplit User",
+      "userCode": "TS-KZ36XS",
+      "upiId": "",
+      "createdAt": "2026-11-20T23:49:25.267Z",
+      "updatedAt": "2026-11-20T23:49:25.267Z"
+    },
+    "32ifBg2zOreQLKFr1gGBH24kxDZ2": {
+      "uid": "32ifBg2zOreQLKFr1gGBH24kxDZ2",
+      "email": "pilot_87218@testsplit.org",
+      "displayName": "TripSplit User",
+      "userCode": "TS-T6C6PG",
+      "upiId": "",
+      "createdAt": "2026-11-20T23:49:53.539Z",
+      "updatedAt": "2026-11-20T23:49:53.539Z"
+    },
+    "NF8WX4bwGAUTiAHVbHWaHPVMDW72": {
+      "uid": "NF8WX4bwGAUTiAHVbHWaHPVMDW72",
+      "email": "paytester_1132@testsplit.org",
+      "displayName": "TripSplit User",
+      "userCode": "TS-4Y4U26",
+      "upiId": "",
+      "createdAt": "2026-11-20T23:50:18.922Z",
+      "updatedAt": "2026-11-20T23:50:18.922Z"
+    },
+    "IlHrcR5v06czcyjG1MLPjACC5CH3": {
+      "uid": "IlHrcR5v06czcyjG1MLPjACC5CH3",
+      "email": "rajsin8672@gmail.com",
+      "displayName": "TripSplit User",
+      "userCode": "TS-8TH55Z",
+      "upiId": "",
+      "createdAt": "2026-11-21T00:02:30.776Z",
+      "updatedAt": "2026-11-21T00:02:30.776Z"
+    },
+    "test_user_sync_1": {
+      "uid": "test_user_sync_1",
+      "email": "test_user_sync_1@tripsplit.local",
+      "displayName": "Karan Kumar",
+      "userCode": "TS-VFP6MY",
+      "upiId": "",
+      "createdAt": "2026-11-21T00:05:04.847Z",
+      "updatedAt": "2026-11-21T00:05:04.847Z"
+    },
+    "gN4TmjpDNWVz7jOIhLvGkQ0gAlu1": {
+      "uid": "gN4TmjpDNWVz7jOIhLvGkQ0gAlu1",
+      "email": "test_debug_check_1@tripsplit.local",
+      "displayName": "TripSplit User",
+      "userCode": "TS-SUY7V3",
+      "upiId": "",
+      "createdAt": "2026-11-21T00:44:27.152Z",
+      "updatedAt": "2026-11-21T00:44:27.152Z"
+    },
+    "6rd677wcw8OwPmEo3RP0l4GOysw2": {
+      "uid": "6rd677wcw8OwPmEo3RP0l4GOysw2",
+      "email": "user_1795221929311@tripsplit.local",
+      "displayName": "Test User",
+      "userCode": "TS-EBRUR8",
+      "upiId": "",
+      "createdAt": "2026-11-21T00:45:32.833Z",
+      "updatedAt": "2026-11-21T00:45:57.113Z"
+    }
+  },
+  "trips": {
+    "TRIP-3F11E5BA": {
+      "tripId": "TRIP-3F11E5BA",
+      "name": "Goa Vacation 2026",
+      "destination": "Goa, India",
+      "description": "End of year beach trip",
+      "startDate": "2026-12-01",
+      "endDate": "2026-12-05",
+      "currency": "INR",
+      "createdBy": "32ifBg2zOreQLKFr1gGBH24kxDZ2",
+      "status": "ACTIVE",
+      "createdAt": "2026-11-20T23:49:57.475Z",
+      "updatedAt": "2026-11-20T23:49:57.475Z",
+      "endedAt": null
+    },
+    "TRIP-887985CA": {
+      "tripId": "TRIP-887985CA",
+      "name": "gao trip",
+      "destination": "goa",
+      "description": "",
+      "startDate": "2026-11-20",
+      "endDate": "2026-12-02",
+      "currency": "INR",
+      "createdBy": "bIns1vEwKHPU5QhY74rDZiIKoln2",
+      "status": "ACTIVE",
+      "createdAt": "2026-11-20T23:54:48.369Z",
+      "updatedAt": "2026-11-20T23:54:48.369Z",
+      "endedAt": null
+    }
+  },
+  "trip_members": {
+    "TRIP-3F11E5BA_32ifBg2zOreQLKFr1gGBH24kxDZ2": {
+      "id": "TRIP-3F11E5BA_32ifBg2zOreQLKFr1gGBH24kxDZ2",
+      "tripId": "TRIP-3F11E5BA",
+      "userId": "32ifBg2zOreQLKFr1gGBH24kxDZ2",
+      "role": "OWNER",
+      "status": "ACTIVE",
+      "joinedAt": "2026-11-20T23:49:57.475Z",
+      "leftAt": null
+    },
+    "TRIP-887985CA_bIns1vEwKHPU5QhY74rDZiIKoln2": {
+      "id": "TRIP-887985CA_bIns1vEwKHPU5QhY74rDZiIKoln2",
+      "tripId": "TRIP-887985CA",
+      "userId": "bIns1vEwKHPU5QhY74rDZiIKoln2",
+      "role": "OWNER",
+      "status": "ACTIVE",
+      "joinedAt": "2026-11-20T23:54:48.369Z",
+      "leftAt": null
+    },
+    "TRIP-887985CA_IlHrcR5v06czcyjG1MLPjACC5CH3": {
+      "id": "TRIP-887985CA_IlHrcR5v06czcyjG1MLPjACC5CH3",
+      "tripId": "TRIP-887985CA",
+      "userId": "IlHrcR5v06czcyjG1MLPjACC5CH3",
+      "role": "MEMBER",
+      "status": "ACTIVE",
+      "joinedAt": "2026-11-21T00:03:00.523Z",
+      "leftAt": null
+    }
+  },
+  "invitations": {
+    "INV-AE5F706E": {
+      "invitationId": "INV-AE5F706E",
+      "tripId": "TRIP-887985CA",
+      "tripName": "gao trip",
+      "tripDestination": "goa",
+      "inviterId": "bIns1vEwKHPU5QhY74rDZiIKoln2",
+      "inviteeId": "IlHrcR5v06czcyjG1MLPjACC5CH3",
+      "inviteeEmail": "rajsin8672@gmail.com",
+      "inviteeUserCode": "TS-8TH55Z",
+      "status": "ACCEPTED",
+      "createdAt": "2026-11-21T00:02:50.297Z",
+      "respondedAt": "2026-11-21T00:03:00.523Z"
+    }
+  }
+}

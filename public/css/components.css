@@ -401,7 +401,7 @@
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 99999;
   padding: 1.5rem;
 }
 
@@ -854,6 +854,23 @@
   background-color: var(--color-primary);
   border-color: var(--color-primary);
   color: #FFFFFF;
+}
+
+.upi-chip-btn {
+  background: var(--color-surface);
+  border: 1px dashed var(--color-primary);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.upi-chip-btn:hover,
+.upi-chip-btn:focus-visible {
+  background: var(--color-very-light-cyan);
+  border-color: var(--color-navy);
 }
 
 /* ==========================================================================

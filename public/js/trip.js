@@ -573,11 +573,20 @@ function renderSettlements() {
   }).join('');
 
   list.querySelectorAll('.pay-upi-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const sId = e.target.getAttribute('data-id');
+    const handlePayUpi = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const sId = btn.getAttribute('data-id') || btn.dataset.id || e.currentTarget?.getAttribute('data-id');
+      console.log('[TripSplit] Pay via UPI tapped. Settlement ID:', sId);
       const settlement = tripSettlements.find(x => x.settlementId === sId);
-      if (settlement) openUpiModal(settlement);
-    });
+      if (settlement) {
+        openUpiModal(settlement);
+      } else {
+        console.warn('[TripSplit] Settlement not found for ID:', sId);
+      }
+    };
+    btn.addEventListener('click', handlePayUpi);
+    btn.addEventListener('touchend', handlePayUpi, { passive: false });
   });
 }
 
@@ -638,11 +647,31 @@ function openUpiModal(settlement) {
   const phonepeBtn = document.getElementById('upi-app-phonepe');
   const paytmBtn = document.getElementById('upi-app-paytm');
   const bhimBtn = document.getElementById('upi-app-bhim');
+  const deviceNotice = document.getElementById('upi-device-notice');
 
   const payeeName = settlement.toUserName || 'TripSplit Member';
   let activeVpa = (settlement.toUserUpi || '').trim();
   const amountRupees = (settlement.amount / 100).toFixed(2);
   const note = `TripSplit ${currentTrip?.name || 'Trip'} Settlement`;
+
+  // Device detection
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (deviceNotice) {
+    deviceNotice.style.display = 'block';
+    if (isMobile) {
+      deviceNotice.style.background = '#ECFDF5';
+      deviceNotice.style.border = '1px solid #A7F3D0';
+      deviceNotice.style.color = '#065F46';
+      deviceNotice.innerHTML = '📱 <strong>Mobile Device:</strong> Tap your preferred UPI app below to open it directly with pre-filled amount and receiver.';
+    } else {
+      deviceNotice.style.background = '#EFF6FF';
+      deviceNotice.style.border = '1px solid #BFDBFE';
+      deviceNotice.style.color = '#1E40AF';
+      deviceNotice.innerHTML = '💻 <strong>Desktop Browser:</strong> To pay with Google Pay, PhonePe, or Paytm, please <strong>scan the QR code</strong> using your phone, or copy the UPI ID below.';
+    }
+  }
 
   if (payeeNameEl) payeeNameEl.textContent = payeeName;
   if (amountEl) amountEl.textContent = `₹${amountRupees}`;
@@ -668,58 +697,38 @@ function openUpiModal(settlement) {
 
       const genericUpiUri = `upi://pay?pa=${encodedVpa}&pn=${encodedName}&am=${amountRupees}&cu=INR&tn=${encodedNote}&tr=${encodedTr}`;
       const phonepeUri = `phonepe://pay?pa=${encodedVpa}&pn=${encodedName}&am=${amountRupees}&cu=INR&tn=${encodedNote}&tr=${encodedTr}`;
-      const gpayUri = `tez://upi/pay?pa=${encodedVpa}&pn=${encodedName}&am=${amountRupees}&cu=INR&tn=${encodedNote}&tr=${encodedTr}`;
+      const gpayUri = isIOS
+        ? `tez://upi/pay?pa=${encodedVpa}&pn=${encodedName}&am=${amountRupees}&cu=INR&tn=${encodedNote}&tr=${encodedTr}`
+        : genericUpiUri;
       const paytmUri = `paytmmp://pay?pa=${encodedVpa}&pn=${encodedName}&am=${amountRupees}&cu=INR&tn=${encodedNote}&tr=${encodedTr}`;
 
-      const openAppIntent = (uri) => {
-        // Direct foreground window navigation triggers native UPI app intent on mobile/tablet
-        window.location.href = uri;
-      };
+      const buttons = [
+        { el: deepLinkBtn, uri: genericUpiUri },
+        { el: gpayBtn, uri: gpayUri },
+        { el: phonepeBtn, uri: phonepeUri },
+        { el: paytmBtn, uri: paytmUri },
+        { el: bhimBtn, uri: genericUpiUri }
+      ];
 
-      if (deepLinkBtn) {
-        deepLinkBtn.href = genericUpiUri;
-        deepLinkBtn.style.display = 'inline-flex';
-        deepLinkBtn.onclick = (e) => {
-          e.preventDefault();
-          openAppIntent(genericUpiUri);
-        };
-      }
+      buttons.forEach(({ el, uri }) => {
+        if (!el) return;
+        el.style.display = 'inline-flex';
+        el.setAttribute('href', uri);
+        el.setAttribute('target', '_top');
 
-      if (gpayBtn) {
-        gpayBtn.href = gpayUri;
-        gpayBtn.style.display = 'inline-flex';
-        gpayBtn.onclick = (e) => {
-          e.preventDefault();
-          openAppIntent(gpayUri);
-        };
-      }
-
-      if (phonepeBtn) {
-        phonepeBtn.href = phonepeUri;
-        phonepeBtn.style.display = 'inline-flex';
-        phonepeBtn.onclick = (e) => {
-          e.preventDefault();
-          openAppIntent(phonepeUri);
-        };
-      }
-
-      if (paytmBtn) {
-        paytmBtn.href = paytmUri;
-        paytmBtn.style.display = 'inline-flex';
-        paytmBtn.onclick = (e) => {
-          e.preventDefault();
-          openAppIntent(paytmUri);
-        };
-      }
-
-      if (bhimBtn) {
-        bhimBtn.href = genericUpiUri;
-        bhimBtn.style.display = 'inline-flex';
-        bhimBtn.onclick = (e) => {
-          e.preventDefault();
-          openAppIntent(genericUpiUri);
-        };
-      }
+        if (isMobile) {
+          // On mobile, native click triggers the OS protocol handler seamlessly
+          el.onclick = () => {
+            console.log('[TripSplit] Launching native UPI app:', uri);
+          };
+        } else {
+          // On desktop, clicking warns the user to scan QR code
+          el.onclick = (e) => {
+            e.preventDefault();
+            alert('UPI payment apps (Google Pay, PhonePe, Paytm) can only be opened directly on a mobile phone or tablet.\n\nPlease scan the QR code displayed below with your phone, or copy the UPI ID!');
+          };
+        }
+      });
 
       // Generate QR Code SVG
       if (qrContainer) {
@@ -748,9 +757,14 @@ function openUpiModal(settlement) {
 
       if (qrContainer) {
         qrContainer.innerHTML = `
-          <div style="padding: 1.5rem; color: var(--color-danger); font-size: 0.9rem; text-align: center;">
-            UPI ID not found for ${escapeHtml(payeeName)}.<br>
-            Please enter their UPI ID above to pay directly via UPI app or QR code.
+          <div style="padding: 1.25rem 1rem; background: var(--color-warning-bg); border: 1.5px dashed var(--color-primary); border-radius: var(--radius-md); font-size: 0.88rem; color: var(--color-navy); text-align: center; margin: 0.5rem 0;">
+            <strong style="color: var(--color-navy); font-size: 0.95rem;">⚠️ Receiver UPI ID Not Configured</strong><br>
+            <span style="color: var(--text-muted); font-size: 0.82rem; margin-top: 0.25rem; display: inline-block;">
+              ${escapeHtml(payeeName)} has not linked a UPI ID to their profile yet.
+            </span><br>
+            <span style="font-size: 0.82rem; margin-top: 0.5rem; display: inline-block; font-weight: 600;">
+              Enter their UPI ID above (or click a quick @bank chip) to generate payment options & QR code.
+            </span>
           </div>
         `;
       }
@@ -764,12 +778,25 @@ function openUpiModal(settlement) {
   // Initial render with current VPA
   renderPaymentViews(activeVpa);
 
+  // Quick suffix chips (@okhdfcbank, @okaxis, @paytm, @ybl, @upi)
+  document.querySelectorAll('.upi-chip-btn').forEach(chip => {
+    chip.onclick = () => {
+      const suffix = chip.getAttribute('data-suffix');
+      let base = (manualInput?.value || '').trim().split('@')[0];
+      if (!base) base = '9876543210';
+      if (manualInput) {
+        manualInput.value = base + suffix;
+        handleApplyVpa();
+      }
+    };
+  });
+
   // Manual UPI ID input handler
   const handleApplyVpa = () => {
     const entered = (manualInput?.value || '').trim();
     if (!entered) {
       if (vpaError) {
-        vpaError.textContent = 'Please enter a receiver UPI ID (e.g. mobile@paytm or name@okaxis).';
+        vpaError.textContent = 'Please enter a receiver UPI ID (e.g. 9876543210@paytm or name@okaxis).';
         vpaError.style.display = 'block';
       }
       return;
@@ -799,7 +826,30 @@ function openUpiModal(settlement) {
         handleApplyVpa();
       }
     };
+    manualInput.oninput = () => {
+      const val = manualInput.value.trim();
+      if (val.includes('@') && val.length >= 5) {
+        activeVpa = val;
+        renderPaymentViews(activeVpa);
+      }
+    };
   }
+
+  // Copy Amount button handler
+  if (copyAmountBtn) {
+    copyAmountBtn.onclick = () => {
+      navigator.clipboard.writeText(amountRupees).then(() => {
+        copyAmountBtn.textContent = 'Amount Copied!';
+        setTimeout(() => { copyAmountBtn.textContent = 'Copy Amount'; }, 2000);
+      }).catch(() => {
+        copyAmountBtn.textContent = 'Amount Copied!';
+        setTimeout(() => { copyAmountBtn.textContent = 'Copy Amount'; }, 2000);
+      });
+    };
+  }
+
+  if (modal) modal.classList.add('is-active');
+}
 
   // Copy Amount button handler
   if (copyAmountBtn) {

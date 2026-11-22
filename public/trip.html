@@ -469,6 +469,9 @@
       </p>
 
       <div class="upi-payment-box">
+        <!-- Dynamic Device Banner (Desktop vs Mobile) -->
+        <div id="upi-device-notice" style="font-size: 0.82rem; padding: 0.65rem 0.85rem; border-radius: var(--radius-md); margin-bottom: 0.85rem; text-align: left; line-height: 1.45; display: none;"></div>
+
         <div style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">
           Pay To
         </div>
@@ -490,6 +493,14 @@
           <div style="display: flex; gap: 0.4rem;">
             <input type="text" id="upi-manual-input" class="form-input" placeholder="e.g. 9876543210@paytm or name@okaxis" style="font-family: var(--font-mono); font-size: 0.88rem; padding: 0.45rem 0.65rem;" />
             <button type="button" class="btn btn-secondary btn-sm" id="upi-apply-vpa-btn">Use</button>
+          </div>
+          <!-- Quick Handle Suffix Chips -->
+          <div style="display: flex; gap: 0.3rem; margin-top: 0.35rem; flex-wrap: wrap;" id="upi-quick-handles">
+            <button type="button" class="upi-chip-btn" data-suffix="@okhdfcbank">@okhdfcbank</button>
+            <button type="button" class="upi-chip-btn" data-suffix="@okaxis">@okaxis</button>
+            <button type="button" class="upi-chip-btn" data-suffix="@paytm">@paytm</button>
+            <button type="button" class="upi-chip-btn" data-suffix="@ybl">@ybl</button>
+            <button type="button" class="upi-chip-btn" data-suffix="@upi">@upi</button>
           </div>
           <div id="upi-vpa-error" style="color: var(--color-danger); font-size: 0.78rem; margin-top: 0.25rem; display: none;"></div>
         </div>
